@@ -61,8 +61,8 @@ module.exports = {
                 var listProduct = [];
                 var addProduct = [];
                 var iFrom = 0;
-                if(resultList && resultList.length > 0) {
-                    iFrom = resultList.length;
+                if(resultList.rows && resultList.rows.length > 0) {
+                    iFrom = resultList.rows.length;
                 }
                 for(iFrom; iFrom < quantity; iFrom++) {
                     addProduct.push({

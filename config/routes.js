@@ -156,7 +156,7 @@ module.exports.routes = {
       controller : 'invoice/InvoiceController',
       action : 'actionIndexPage',
       locals : {
-          layout : 'layouts/layouts/layout'
+          layout : 'layouts/layout'
       }
   },
   '/invoice/list' : {

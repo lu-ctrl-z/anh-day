@@ -74,7 +74,7 @@ module.exports = {
         paramList.push(parentId);
         var query = column + from;
         Dual.query(query, paramList, function(err, resultList) {
-            callback(resultList);
+            callback(resultList.rows);
         });
     },
     /**
@@ -95,7 +95,7 @@ module.exports = {
         paramList.push(sysCatTypeId);
         var query = column + from;
         Dual.query(query, paramList, function(err, resultList) {
-            callback(resultList);
+            callback(resultList.rows);
         });
     },
     /**

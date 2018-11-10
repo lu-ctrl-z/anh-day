@@ -96,7 +96,7 @@ module.exports = {
      */
     autoComplete : function(code, organizationId, callback) {
         var paramList = [];
-        var i = 1;
+        var i = 0;// $" + (++i) + "
         var column = " SELECT " +
                      "  c.customer_id As customerId " +
                      ", c.phone_number As phoneNumber " +
@@ -111,9 +111,9 @@ module.exports = {
                      ", o.organization_name As organizationName ";
         var from =  " FROM CUSTOMER c " +
                     "    INNER JOIN ORGANIZATION o ON o.organization_id = c.organization_id " +
-                    " WHERE o.path LIKE $`i++` " +
-                    " AND ( c.phone_number LIKE $`i++` " +
-                    "    OR c.full_name LIKE $`i++` " +
+                    " WHERE o.path LIKE $" + (++i) + " " +
+                    " AND ( c.phone_number LIKE $" + (++i) + " " +
+                    "    OR c.full_name LIKE $" + (++i) + " " +
                     "     ) " +
                     " LIMIT 10 ";
         var query = column + from;
@@ -125,7 +125,7 @@ module.exports = {
                 console.log(err);
                 callback(false);
             } else {
-                callback(resultList);
+                callback(resultList.rows);
             }
         });
     }

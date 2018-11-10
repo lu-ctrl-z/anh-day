@@ -81,7 +81,7 @@ module.exports = {
                 console.log(err);
                 callback(false);
             } else {
-                callback(resultList);
+                callback(resultList.rows);
             }
         });
     },
@@ -106,7 +106,7 @@ module.exports = {
         var from =  " FROM SYS_CAT sc " +
                     "    INNER JOIN SYS_CAT_TYPE sct ON sct.sys_cat_type_id = sc.sys_cat_type_id " +
                     "    INNER JOIN ORGANIZATION o ON o.organization_id = sct.organization_id " +
-                    " WHERE sct.organization_id = $" + (++i) + "? " +
+                    " WHERE sct.organization_id = $" + (++i) + " " +
                     " AND ( sc.code LIKE $" + (++i) + " " +
                     "    OR sc.name LIKE $" + (++i) + " " +
                     "    OR sct.name LIKE $" + (++i) + " ) " +
@@ -121,7 +121,7 @@ module.exports = {
                 console.log(err);
                 callback(false);
             } else {
-                callback(resultList);
+                callback(resultList.rows);
             }
         });
     }
