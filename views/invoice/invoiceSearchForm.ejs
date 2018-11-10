@@ -1,7 +1,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <strong class="h-i">
-            <%-__('invoice.invoiceSearchInfo')%>
+            <%-sails.__('invoice.invoiceSearchInfo')%>
         </strong>
     </div>
     <div class="panel-body">
@@ -9,7 +9,7 @@
             <input type='hidden' name='_csrf' value='<%- _csrf %>'>
             <div class="form-group">
                 <label class="col-sm-4 control-label">
-                    <%=__('invoice.invoiceCode')%>
+                    <%=sails.__('invoice.invoiceCode')%>
                 </label>
                 <div class="col-sm-4">
                     <div class="input-group">
@@ -20,7 +20,7 @@
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">
-                    <%=__('invoice.customerFullName')%>
+                    <%=sails.__('invoice.customerFullName')%>
                 </label>
                 <div class="col-sm-4">
                     <input type="text" id="filterFullName" class="op-ux-input form-control" name="fullName">
@@ -28,7 +28,7 @@
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">
-                    <%=__('invoice.invoiceDate')%>
+                    <%=sails.__('invoice.invoiceDate')%>
                 </label>
                 <div class="col-sm-4">
                     <%if(true) {
@@ -38,8 +38,8 @@
                 </div>
             </div>
             <div class="btn-area">
-                <button type="submit" onclick="pressSearchButton(); return false;" class="btn btn-info"><%-__('button.search')%></button>
-                <button type="button" class="btn btn-info" onclick="pressAddButton();" data-ng-click="currentPage=CS_PAGE.FORM"><%-__('button.add')%></button>
+                <button type="submit" onclick="pressSearchButton(); return false;" class="btn btn-info"><%-sails.__('button.search')%></button>
+                <button type="button" class="btn btn-info" onclick="pressAddButton();" data-ng-click="currentPage=CS_PAGE.FORM"><%-sails.__('button.add')%></button>
             </div>
         </form>
     </div>

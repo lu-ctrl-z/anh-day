@@ -13,7 +13,7 @@
     <div id="divList" class="panel panel-default">
         <div class="panel-heading">
             <strong class="h-i">
-                <%-__('customer.customerInfoList')%>
+                <%-sails.__('customer.customerInfoList')%>
             </strong>
         </div>
         <div class="panel-body" id="divListCustomer">
@@ -99,7 +99,7 @@ function callbackAfterSaveAndInvoice(returnCode, extraValue) {
     var $scope = angular.element(document.getElementById('content-body')).scope();
     $scope.currentPage = $scope.CS_PAGE.SEARCH;
     $scope.$apply();
-    window.open('/invoice/form/?customerId=' + extraValue, '_blank', '<%=__("config.invoiceFormatPopup")%>');
+    window.open('/invoice/form/?customerId=' + extraValue, '_blank', '<%=sails.__("config.invoiceFormatPopup")%>');
 }
 function callbackAfterSave(returnCode, extraValue) {
     d2tResetForm('frmSave');
@@ -148,7 +148,7 @@ $(document).ready( function() {
                    data : "updatedAt",
                    render : function(data, type, row) {
                        return null == data ? "" 
-                          : '<span title="<%-__('global.lastUpdated')%> ' + moment(data).format('YYYY/MM/DD HH:mm') + '">' + moment(data).fromNow() + '</span>';
+                          : '<span title="<%-sails.__('global.lastUpdated')%> ' + moment(data).format('YYYY/MM/DD HH:mm') + '">' + moment(data).fromNow() + '</span>';
                    }
                },
                {
@@ -164,14 +164,14 @@ $(document).ready( function() {
 function renderActionColumn(data, type, row) {
     var html =  '<span class="has-notifi">';
         html += '<a class="op-ux-icon-table" onclick="pressDetailIcon(' + data.customerId + ');" href="javascript:void(0);">';
-        html += "<%-__("common.view")%>";
+        html += "<%-sails.__("common.view")%>";
         html += '</a>';
         html += '<span class="notifi">' + data.countInvoice + '</span>';
         html += '</span>';
-        html += '<a class="op-ux-icon-table" onclick="pressEditIcon(' + data.customerId + ');" href="javascript:void(0);">' + "<%-__('common.edit')%></a>";
-        html += '<a class="op-ux-icon-table" onclick="window.open(\'/invoice/form/?customerId=' + data.customerId + '\', \'_blank\', \'' + "<%=__('config.invoiceFormatPopup')%>" + '\');" href="javascript:void(0);">' + "<%-__('common.invoice')%></a>";
+        html += '<a class="op-ux-icon-table" onclick="pressEditIcon(' + data.customerId + ');" href="javascript:void(0);">' + "<%-sails.__('common.edit')%></a>";
+        html += '<a class="op-ux-icon-table" onclick="window.open(\'/invoice/form/?customerId=' + data.customerId + '\', \'_blank\', \'' + "<%=sails.__('config.invoiceFormatPopup')%>" + '\');" href="javascript:void(0);">' + "<%-sails.__('common.invoice')%></a>";
         if(data.countInvoice == 0) {
-            html += '<a class="op-ux-icon-table" onclick="pressDeleteIcon(' + data.customerId + ');" href="javascript:void(0);">' + "<%-__('common.delete')%></a>";
+            html += '<a class="op-ux-icon-table" onclick="pressDeleteIcon(' + data.customerId + ');" href="javascript:void(0);">' + "<%-sails.__('common.delete')%></a>";
         }
         return html;
 }

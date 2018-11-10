@@ -59,6 +59,7 @@ module.exports = {
      */
     getInvoiceList: function(req, res) {
         var paramList = [];
+        var i = 1;
         var column = " SELECT " +
                      "  i.invoice_id As invoiceId " +
                      ", c.customer_id As customerId " +
@@ -76,18 +77,18 @@ module.exports = {
                    "    INNER JOIN ORGANIZATION org2 ON org1.path LIKE CONCAT(org2.path, '%')" +
                    "    INNER JOIN M_USERS u ON u.organization_id = org2.organization_id " +
                    " WHERE " +
-                   "    u.id = ? ";
+                   "    u.id = $" + (i++) + " ";
         paramList.push(req.session.user['id']);
         if(!CommonUtils.isNullOrEmpty(req.param('invoiceCode'))) {
-            from += " AND i.invoice_code LIKE ? ";
+            from += " AND i.invoice_code LIKE $" + (i++) + " ";
             paramList.push('%' + req.param('invoiceCode') + '%');
         }
         if(!CommonUtils.isNullOrEmpty(req.param('fullName'))) {
-            from += " AND c.full_name LIKE ? ";
+            from += " AND c.full_name LIKE $" + (i++) + " ";
             paramList.push('%' + req.param('fullName') + '%');
         }
         if(!CommonUtils.isNullOrEmpty(req.param('createdAt'))) {
-            from += " AND DATE_FORMAT(i.createdAt, '%d/%m/%Y') = ? ";
+            from += " AND DATE_FORMAT(i.createdAt, '%d/%m/%Y') = $" + (i++) + " ";
             paramList.push(req.param('createdAt'));
         }
         var dataTableParam = DataTable.getParam(req);
@@ -106,8 +107,10 @@ module.exports = {
         DataTable.toJson(req, res, query, countQuery, paramList);
     },
     //xử lý báo cáo doanh số
-    getRevenueReport: function(organizationId, fromDate, toDate, callback) {
+    getRevenueReport: async function(organizationId, fromDate, toDate, callback) {
+        console.log(organizationId, fromDate, toDate)
         var paramList = [];
+        var i = 1;
         var column = " SELECT " +
                      "  DATE_FORMAT(i.createdAt, '%d/%m/%Y') As dateReport " +
                      ", COUNT(i.invoice_id) As countInvoice " +
@@ -119,37 +122,32 @@ module.exports = {
                    "    INNER JOIN ORGANIZATION org1 ON org1.organization_id = c.organization_id " +
                    "    INNER JOIN ORGANIZATION org2 ON org1.path LIKE CONCAT(org2.path, '%')" +
                    " WHERE " +
-                   "    org2.organization_id = ? " +
+                   "    org2.organization_id = $" + (i++) + " " +
                    "    AND i.status = 1 " +
-                   "    AND ( DATE(i.createdAt) BETWEEN STR_TO_DATE(?, '%d/%m/%Y') AND STR_TO_DATE(?, '%d/%m/%Y') ) " +
+                   "    AND ( DATE(i.createdAt) BETWEEN STR_TO_DATE($" + (i++) + ", '%d/%m/%Y') AND STR_TO_DATE($" + (i++) + ", '%d/%m/%Y') ) " +
                    " GROUP BY DATE_FORMAT(i.createdAt, '%d/%m/%Y') " +
                    " ORDER BY i.createdAt  ASC ";
         paramList.push(organizationId);
         paramList.push(fromDate);
         paramList.push(toDate);
         var query = column + from;
-        Dual.query(query, paramList, function(err, resultList) {
-            if (err) {
-                console.log(err);
-                callback(false);
-            } else {
-                callback(resultList);
-            }
-        });
+        var resultList = await sails.sendNativeQuery(query, paramList);
+        callback(resultList.rows);
     },
     //xử lý báo cáo hàng tồn kho
-    getArchiveReport: function(organizationId, fromDate, toDate, sysCatTypeId, callback) {
+    getArchiveReport: async function(organizationId, fromDate, toDate, sysCatTypeId, callback) {
         var paramList = [];
+        var i = 1;
         var query = " SELECT DATE_FORMAT(t1.selected_date, '%d/%m/%Y') As reportDate "
                    + "      ,SUM(CASE WHEN t2.soldDate IS NOT NULL AND DATE(t2.soldDate) = DATE(t1.selected_date) THEN 1 ELSE 0 END) As countSold " 
                    + "      ,SUM(CASE WHEN t2.soldDate IS NOT NULL AND DATE(t2.soldDate) <= DATE(t1.selected_date) THEN 0 ELSE 1 END) As countArchive "
                    + " FROM ( "
                    + "       SELECT v.selected_date FROM " 
-                   + "         ( SELECT ADDDATE(STR_TO_DATE(?, '%d/%m/%Y'), t2.i*100 + t1.i*10 + t0.i) selected_date FROM "
+                   + "         ( SELECT ADDDATE(STR_TO_DATE($" + (i++) + ", '%d/%m/%Y'), t2.i*100 + t1.i*10 + t0.i) selected_date FROM "
                    + "           (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t0, "
                    + "           (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t1, "
                    + "           (SELECT 0 i UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) t2 "
-                   + "         ) v WHERE DATE(selected_date) BETWEEN STR_TO_DATE(?, '%d/%m/%Y') AND STR_TO_DATE(?, '%d/%m/%Y') " 
+                   + "         ) v WHERE DATE(selected_date) BETWEEN STR_TO_DATE($" + (i++) + ", '%d/%m/%Y') AND STR_TO_DATE($" + (i++) + ", '%d/%m/%Y') " 
                    + "      ) t1 "
                    + " INNER JOIN "
                    + " ( "
@@ -157,9 +155,9 @@ module.exports = {
                    + "  FROM sys_cat_type sct "
                    + "  INNER JOIN SYS_CAT sc ON sct.sys_cat_type_id = sc.sys_cat_type_id "
                    + "  INNER JOIN PRODUCT p  ON p.sys_cat_id = sc.sys_cat_id "
-                   + "  WHERE sct.organization_id = ? "
-                   + "  AND DATE(p.createdAt) <= STR_TO_DATE(?, '%d/%m/%Y') "
-                   + (sysCatTypeId > 0 ? " AND sct.sys_cat_type_id = ? " : "")
+                   + "  WHERE sct.organization_id = $" + (i++) + " "
+                   + "  AND DATE(p.createdAt) <= STR_TO_DATE($" + (i++) + ", '%d/%m/%Y') "
+                   + (sysCatTypeId > 0 ? " AND sct.sys_cat_type_id = $" + (i++) + " " : "")
                    + " ) t2 "
                    + " ON DATE(t2.createdAt) <= DATE(t1.selected_date) "
                    + "  GROUP BY t1.selected_date ";
@@ -171,14 +169,8 @@ module.exports = {
         if(sysCatTypeId > 0) {
             paramList.push(sysCatTypeId);
         }
-        Dual.query(query, paramList, function(err, resultList) {
-            if (err) {
-                console.log(err);
-                callback(false);
-            } else {
-                callback(resultList);
-            }
-        });
+        var resultList = await sails.sendNativeQuery(query, paramList);
+        callback(resultList.rows);
     },
 };
 

@@ -49,6 +49,7 @@ module.exports = {
      */
     getCustomerList: function(req, res) {
         var paramList = [];
+        var i = 0; //$"+ (++i) + "
         var column = " SELECT " +
                      "  c.customer_id As customerId " +
                      ", c.phone_number As phoneNumber " +
@@ -62,18 +63,18 @@ module.exports = {
                    "    INNER JOIN ORGANIZATION org2 ON org1.path LIKE CONCAT(org2.path, '%')" +
                    "    INNER JOIN M_USERS u ON u.organization_id = org2.organization_id " +
                    " WHERE " +
-                   "    u.id = ? ";
+                   "    u.id = $"+ (++i) + " ";
         paramList.push(req.session.user['id']);
         if(!CommonUtils.isNullOrEmpty(req.param('phoneNumber'))) {
-            from += " AND c.phone_number LIKE ? ";
+            from += " AND c.phone_number LIKE $"+ (++i) + " ";
             paramList.push('%' + req.param('phoneNumber') + '%');
         }
         if(!CommonUtils.isNullOrEmpty(req.param('fullName'))) {
-            from += " AND c.full_name LIKE ? ";
+            from += " AND c.full_name LIKE $"+ (++i) + " ";
             paramList.push('%' + req.param('fullName') + '%');
         }
         if(!CommonUtils.isNullOrEmpty(req.param('address'))) {
-            from += " AND c.address LIKE ? ";
+            from += " AND c.address LIKE $"+ (++i) + " ";
             paramList.push('%' + req.param('address') + '%');
         }
         var dataTableParam = DataTable.getParam(req);
@@ -95,6 +96,7 @@ module.exports = {
      */
     autoComplete : function(code, organizationId, callback) {
         var paramList = [];
+        var i = 1;
         var column = " SELECT " +
                      "  c.customer_id As customerId " +
                      ", c.phone_number As phoneNumber " +
@@ -109,9 +111,9 @@ module.exports = {
                      ", o.organization_name As organizationName ";
         var from =  " FROM CUSTOMER c " +
                     "    INNER JOIN ORGANIZATION o ON o.organization_id = c.organization_id " +
-                    " WHERE o.path LIKE ? " +
-                    " AND ( c.phone_number LIKE ? " +
-                    "    OR c.full_name LIKE ? " +
+                    " WHERE o.path LIKE $`i++` " +
+                    " AND ( c.phone_number LIKE $`i++` " +
+                    "    OR c.full_name LIKE $`i++` " +
                     "     ) " +
                     " LIMIT 10 ";
         var query = column + from;

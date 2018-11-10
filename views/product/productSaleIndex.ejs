@@ -81,7 +81,7 @@ input.opacity {
                             <th class="size-5 alignCenter" 
                                 rowspan="1" colspan="1" style="width: 200px;">Tên</th>
                             <th class="size-2 alignCenter" 
-                                rowspan="1" colspan="1" style="width: 120px;"><%-__('optical.unit')%></th>
+                                rowspan="1" colspan="1" style="width: 120px;"><%-sails.__('optical.unit')%></th>
                             <th class="size-5 alignCenter" 
                                 rowspan="1" colspan="1" style="width: 200px;">Danh mục</th>
                             <th class="size-2 alignCenter sorting_disabled" rowspan="1"
@@ -108,7 +108,7 @@ input.opacity {
                             <td class="alignLeft">{{product.typeName}}</th>
                             <td class="alignCenter sorting_disabled rel" style="width: 148px; vertical-align: middle;">
                                 <span ng-if="!product.productId" class='sp-warning glyphicons glyphicons-alert' title='SP này không có sẵn trong kho'></span>
-                                <a ng-if="!product.isSubmiting && !product.isSubmited" href="javascript:void(0)" ng-click="deleteProduct(product);"><%-__('common.delete')%></a>
+                                <a ng-if="!product.isSubmiting && !product.isSubmited" href="javascript:void(0)" ng-click="deleteProduct(product);"><%-sails.__('common.delete')%></a>
                                 <span ng-if="!product.isSubmiting && product.isSubmited" class="glyphicons glyphicons-ok"></span>
                                 <div  class="gif-loader spin2" ng-if="product.isSubmiting && !product.isSubmited" style="display: block; background-size: 20px 20px; height: 20px; width: 20px;"></div>
                             </td>
@@ -180,14 +180,14 @@ input.opacity {
                 <div class="panel-body rel" ng-class="{isEditAble: customer.customer_id}">
                 <div class="form-group">
                     <strong class="h-i col-sm-2">
-                    <%-__('customer.customerInfo')%>
+                    <%-sails.__('customer.customerInfo')%>
                     </strong>
                 </div>
                 <input type='hidden' name='_csrf' value='<%- _csrf %>'>
                 <input type="hidden" name="customerId" ng-model="customer.customer_id" id="customerId">
                 <div class="form-group">
                     <label class="col-sm-2 control-label">
-                        <%=__('customer.fullName')%><%-__('common.mandatory')%>
+                        <%=sails.__('customer.fullName')%><%-sails.__('common.mandatory')%>
                     </label>
                     <div class="col-sm-3">
                         <!-- <input type="text" maxlength="255" id="fullName" ng-model="customer.full_name" class="op-ux-input form-control validate[required,maxSize[255]]" name="fullName"> -->
@@ -197,7 +197,7 @@ input.opacity {
                         <%}%>
                     </div>
                     <label class="col-sm-2 control-label">
-                        <%=__('customer.phoneNumber')%>
+                        <%=sails.__('customer.phoneNumber')%>
                     </label>
                     <div class="col-sm-3">
                         <div class="input-group">
@@ -208,7 +208,7 @@ input.opacity {
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">
-                        <%=__('customer.address')%>
+                        <%=sails.__('customer.address')%>
                     </label>
                     <div class="col-sm-8">
                         <textarea maxlength="255" id="address" ng-model="customer.address" class="op-ux-input form-control validate[maxSize[255]]" name="address"></textarea>
@@ -355,7 +355,7 @@ input.opacity {
                 </div>
             </form>
             <div class="panel-footer" ng-show="productList.length > 0">
-                <button type="button" class="btn btn-primary" ng-click="processSaveAll()"><%-__('button.print2')%></button>
+                <button type="button" class="btn btn-primary" ng-click="processSaveAll()"><%-sails.__('button.print2')%></button>
             </div>
         </div>
         <%- include ../common/saveResultDisplay%>

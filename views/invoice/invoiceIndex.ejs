@@ -10,7 +10,7 @@
     <div id="divList" class="panel panel-default">
         <div class="panel-heading">
             <strong class="h-i">
-                <%-__('invoice.invoiceInfoList')%>
+                <%-sails.__('invoice.invoiceInfoList')%>
             </strong>
         </div>
         <div class="panel-body" id="divListCustomer">
@@ -58,7 +58,7 @@ function pressApproveIcon(invoiceId) {
     }
 }
 function pressDetailIcon(customerId, invoiceId) {
-    window.open('/invoice/form/?customerId=' + customerId + '&invoiceId=' + invoiceId, '_blank', '<%=__("config.invoiceFormatPopup")%>');
+    window.open('/invoice/form/?customerId=' + customerId + '&invoiceId=' + invoiceId, '_blank', '<%=sails.__("config.invoiceFormatPopup")%>');
 }
 $(document).ready( function() {
     if (!angular.element(document.getElementById('content-body')).scope()) {
@@ -109,9 +109,9 @@ $(document).ready( function() {
                    data: 'status',
                    render : function(status, type, row) {
                        if(status == 0) {
-                           return "<%=__('global.noneApprove')%>";
+                           return "<%=sails.__('global.noneApprove')%>";
                        } else {
-                           return "<%=__('global.approved')%>";
+                           return "<%=sails.__('global.approved')%>";
                        }
                    },
                },
@@ -128,15 +128,15 @@ $(document).ready( function() {
 function renderActionColumn(data, type, row) {
     var html = '';
     if(data.status == 0) {
-        html += '<a class="op-ux-icon-table" onclick="pressApproveIcon(' + data.invoiceId + ');" href="javascript:void(0);">' + '<%-__("common.approve")%></a>';
+        html += '<a class="op-ux-icon-table" onclick="pressApproveIcon(' + data.invoiceId + ');" href="javascript:void(0);">' + '<%-sails.__("common.approve")%></a>';
     }
         html +=  '<span class="has-notifi">';
         html += '<a class="op-ux-icon-table" onclick="pressDetailIcon(' + data.customerId + ',' + data.invoiceId + ');" href="javascript:void(0);">';
-        html += "<%-__("common.view")%>";
+        html += "<%-sails.__("common.view")%>";
         html += '</a>';
         html += '</span>';
         if(data.status == 0) {
-            html += '<a class="op-ux-icon-table" onclick="pressDeleteIcon(' + data.invoiceId + ');" href="javascript:void(0);">' + "<%-__('common.delete')%></a>";
+            html += '<a class="op-ux-icon-table" onclick="pressDeleteIcon(' + data.invoiceId + ');" href="javascript:void(0);">' + "<%-sails.__('common.delete')%></a>";
         }
         return html;
 }

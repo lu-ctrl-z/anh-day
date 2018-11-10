@@ -97,13 +97,15 @@ module.exports = {
      * @params cd callback function
      */
     loginAsAutoLogin: function($token, cb) {
-        var $now = moment(moment().format("YYYY-MM-DD")).toISOString();
+        
+        var $now = sails.moment(sails.moment().format("YYYY-MM-DD")).toISOString();
+        console.error($now);
         AutoLogin.findOne({
             token : $token,
             expire : {
                 '>=' : $now
             }
-        }, function(err, record) {
+        }).exec((err, record) => {
             console.log(err);
             console.log(record);
             if (err) {

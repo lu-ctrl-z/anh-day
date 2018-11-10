@@ -10,7 +10,6 @@ module.exports = function authenticate (req, res, next) {
                 Organization.findOne({
                     organizationId: req.session.user.organizationId
                 }).exec((err, organization) => {
-                    console.log(organization)
                     if (err) {
                         console.log(err);
                         return next();

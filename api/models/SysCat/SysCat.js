@@ -63,6 +63,7 @@ module.exports = {
      */
     findByBarcode: function(code, callback) {
         var paramList = [];
+        var i = 0;// $" + (++i) + "
         var column = " SELECT " +
                      "  sc.sys_cat_id As sysCatId " +
                      ", sc.code As code " +
@@ -72,7 +73,7 @@ module.exports = {
         var from = " FROM SYS_CAT sc " +
                    "    INNER JOIN SYS_CAT_TYPE sct ON sct.sys_cat_type_id = sc.sys_cat_type_id " +
                    " WHERE " +
-                   "    sc.code = ? ";
+                   "    sc.code = $" + (++i) + " ";
         var query = column + from;
         paramList.push(code);
         SysCat.query(query, paramList, function(err, resultList) {
@@ -89,6 +90,7 @@ module.exports = {
      */
     autoComplete: function(code, organizationId, callback) {
         var paramList = [];
+        var i = 0;// $" + (++i) + "
         var column = " SELECT " +
                      "  sc.sys_cat_id As sysCatId " +
                      ", sc.code As code " +
@@ -104,10 +106,10 @@ module.exports = {
         var from =  " FROM SYS_CAT sc " +
                     "    INNER JOIN SYS_CAT_TYPE sct ON sct.sys_cat_type_id = sc.sys_cat_type_id " +
                     "    INNER JOIN ORGANIZATION o ON o.organization_id = sct.organization_id " +
-                    " WHERE sct.organization_id = ? " +
-                    " AND ( sc.code LIKE ? " +
-                    "    OR sc.name LIKE ? " +
-                    "    OR sct.name LIKE ? ) " +
+                    " WHERE sct.organization_id = $" + (++i) + "? " +
+                    " AND ( sc.code LIKE $" + (++i) + " " +
+                    "    OR sc.name LIKE $" + (++i) + " " +
+                    "    OR sct.name LIKE $" + (++i) + " ) " +
                     " LIMIT 10 ";
         var query = column + from;
         paramList.push(organizationId);

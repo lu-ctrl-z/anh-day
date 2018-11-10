@@ -133,7 +133,7 @@
             </div>
             <div class="heading-area-button">
                 <select class="op-ux-input form-control" name="sysCatTypeId" ng-model="sysCatTypeId" id="sysCatTypeId" ng-change="getArchiveChart();">
-                    <option value=""><%-__('select.allCbo')%></option>
+                    <option value=""><%-sails.__('select.allCbo')%></option>
                     <option value="{{sysCatType.sysCatTypeId}}" ng-repeat="sysCatType in lstSysCatType">{{sysCatType.name}}</option>
                 </select>
             </div>

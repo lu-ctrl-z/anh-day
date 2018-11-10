@@ -4,7 +4,7 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         <strong class="h-i">
-            <%-__('customer.customerSaveInfo')%>
+            <%-sails.__('customer.customerSaveInfo')%>
         </strong>
     </div>
     <div class="panel-body">
@@ -13,7 +13,7 @@
             <input type='hidden' name='customerId' value='<%=form_value("customer_id", req, customer)%>'>
             <div class="form-group">
                 <label class="col-sm-4 control-label">
-                    <%=__('customer.phoneNumber')%>
+                    <%=sails.__('customer.phoneNumber')%>
                 </label>
                 <div class="col-sm-4">
                     <div class="input-group">
@@ -24,7 +24,7 @@
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">
-                    <%=__('customer.fullName')%><%-__('common.mandatory')%>
+                    <%=sails.__('customer.fullName')%><%-sails.__('common.mandatory')%>
                 </label>
                 <div class="col-sm-4">
                     <input type="text" maxlength="255" value='<%=form_value("full_name", req, customer)%>' class="op-ux-input form-control validate[required,maxSize[255]]" name="fullName">
@@ -32,16 +32,16 @@
             </div>
             <div class="form-group">
                 <label class="col-sm-4 control-label">
-                    <%=__('customer.address')%>
+                    <%sails.__('customer.address')%>
                 </label>
                 <div class="col-sm-4">
                     <textarea maxlength="255" id="address" class="op-ux-input form-control validate[maxSize[255]]" name="address"><%=form_value("address", req, customer)%></textarea>
                 </div>
             </div>
             <div class="btn-area">
-                <button type="button" class="btn btn-danger" data-ng-click="currentPage=CS_PAGE.SEARCH"><%-__('button.back')%></button>
-                <button type="submit" class="btn btn-info" onclick="pressSaveButton();"><%-__('button.save')%></button>
-                <button type="button" class="btn btn-info" onclick="pressSaveAndInvoice();"><%-__('button.saveAndInvoice')%></button>
+                <button type="button" class="btn btn-danger" data-ng-click="currentPage=CS_PAGE.SEARCH"><%-sails.__('button.back')%></button>
+                <button type="submit" class="btn btn-info" onclick="pressSaveButton();"><%-sails.__('button.save')%></button>
+                <button type="button" class="btn btn-info" onclick="pressSaveAndInvoice();"><%-sails.__('button.saveAndInvoice')%></button>
             </div>
         </form>
     </div>

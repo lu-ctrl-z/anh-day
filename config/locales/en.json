@@ -68,5 +68,20 @@
 	"global.name": "global.name",
 	"optical.price": "optical.price",
 	"optical.totalProduct": "optical.totalProduct",
-	"common.print": "common.print"
+	"common.print": "common.print",
+	"invoice.invoiceSearchInfo": "invoice.invoiceSearchInfo",
+	"invoice.invoiceCode": "invoice.invoiceCode",
+	"invoice.customerFullName": "invoice.customerFullName",
+	"invoice.invoiceDate": "invoice.invoiceDate",
+	"alert.invalidDate": "alert.invalidDate",
+	"invoice.invoiceInfoList": "invoice.invoiceInfoList",
+	"invoice.customerName": "invoice.customerName",
+	"invoice.totalPrice": "invoice.totalPrice",
+	"invoice.trueTotalPrice": "invoice.trueTotalPrice",
+	"invoice.createdAt": "invoice.createdAt",
+	"invoice.organizationName": "invoice.organizationName",
+	"global.status": "global.status",
+	"global.noneApprove": "global.noneApprove",
+	"global.approved": "global.approved",
+	"common.approve": "common.approve"
 }

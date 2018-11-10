@@ -45,12 +45,16 @@ module.exports.buildOrder = function(columnsOrder, defaultSort, req) {
 
 module.exports.toJson = function(req, res, query, countQuery, paramList, callback) {
     var param = DataTable.getParam(req);
-
+    var i = 0;// $" + (++i) + "
+    if(paramList && paramList.length > 0) {
+        i = paramList.length;
+    }
+    
     var returnData = {};
     var draw = CommonUtils.NVL(CommonUtils.getParameterLong(req, "sEcho"));
     var limit = param.length;
     var offset = param.start;
-    query += " LIMIT ? OFFSET ? ";
+    query += " LIMIT $" + (++i) + " OFFSET $" + (++i) + " ";
     paramList.push(limit);
     paramList.push(offset);
     returnData.draw = draw;
@@ -59,13 +63,13 @@ module.exports.toJson = function(req, res, query, countQuery, paramList, callbac
             if (err) {
                 console.log(err);
             } else {
-                returnData.data = resultList;
+                returnData.data = resultList.rows;
                 Dual.query(countQuery, paramList, function(err, recordsTotal) {
                     if (err) {
                         console.log(err);
                     } else {
-                        if(recordsTotal) {
-                            recordsTotal = recordsTotal[0].count;
+                        if(recordsTotal.rows) {
+                            recordsTotal = recordsTotal.rows[0].count;
                         }
                         returnData.recordsTotal = recordsTotal;
                         returnData.recordsFiltered = recordsTotal;

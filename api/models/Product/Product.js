@@ -44,11 +44,12 @@ module.exports = {
     },
     saleProduct: function(soldUser, invoiceId, sysCatId, quantity, callback) {
         var paramList = [];
+        var i = 0;// $" + (++i) + "
         var column = " SELECT p.product_id As productId ";
         var from =  " FROM PRODUCT p " +
                     " WHERE p.is_sold = 0 " +
-                    " AND p.sys_cat_id = ? " +
-                    " LIMIT ? ";
+                    " AND p.sys_cat_id = $" + (++i) + " " +
+                    " LIMIT $" + (++i) + " ";
         var query = column + from;
         paramList.push(parseInt(sysCatId));
         paramList.push(parseInt(quantity));

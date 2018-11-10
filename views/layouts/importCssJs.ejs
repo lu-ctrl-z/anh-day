@@ -11,14 +11,14 @@
 <link href="/css/op-layout.css" rel="stylesheet" />
 <script type="text/javascript">
 var MSG = {};
-MSG.confirmAction = "<%-__('MSG.confirmAction')%>";
-MSG.confirmCollectData = "<%-__('MSG.confirmCollectData')%>";
-MSG.confirmCreate = "<%-__('MSG.confirmCreate')%>";
-MSG.confirmDelete = "<%-__('MSG.confirmDelete')%>";
-MSG.confirmImport = "<%-__('MSG.confirmImport')%>";
-MSG.confirmSave = "<%-__('MSG.confirmSave')%>";
-MSG.confirmSync = "<%-__('MSG.confirmSync')%>";
-MSG.confirmUpdate = "<%-__('MSG.confirmUpdate')%>";
+MSG.confirmAction = "<%-sails.__('MSG.confirmAction')%>";
+MSG.confirmCollectData = "<%-sails.__('MSG.confirmCollectData')%>";
+MSG.confirmCreate = "<%-sails.__('MSG.confirmCreate')%>";
+MSG.confirmDelete = "<%-sails.__('MSG.confirmDelete')%>";
+MSG.confirmImport = "<%-sails.__('MSG.confirmImport')%>";
+MSG.confirmSave = "<%-sails.__('MSG.confirmSave')%>";
+MSG.confirmSync = "<%-sails.__('MSG.confirmSync')%>";
+MSG.confirmUpdate = "<%-sails.__('MSG.confirmUpdate')%>";
 
 var TOKEN_NAME = '_csrf';
 var STG_PRINT_NAME = 'printSelectedItem';
@@ -60,16 +60,16 @@ var STG_PRINT_CURRENT_TITLE = '_pCurrentTitle';
             $(paginationButton).each(function() {
                 var text = $(this).text(), title = '';
                 if (isNaN(text)) {
-                    if (text == '<%-__("dataTable.first")%>') {
+                    if (text == '<%-sails.__("dataTable.first")%>') {
                         title = 'Trang đầu';
                     }
-                    if (text == '<%-__("dataTable.last")%>') {
+                    if (text == '<%-sails.__("dataTable.last")%>') {
                         title = 'Trang cuối';
                     }
-                    if (text == '<%-__("dataTable.next")%>') {
+                    if (text == '<%-sails.__("dataTable.next")%>') {
                         title = 'Trang tiếp theo';
                     }
-                    if (text == '<%-__("dataTable.previous")%>') {
+                    if (text == '<%-sails.__("dataTable.previous")%>') {
                         title = 'Trang trước';
                     }
                 } else {
@@ -81,25 +81,25 @@ var STG_PRINT_CURRENT_TITLE = '_pCurrentTitle';
             $(this).closest('.dataTables_wrapper').find('.dataTables_paginate').find('.disabled, .active').find('a').removeAttr('href').removeAttr('tabindex');
         },
         language: {
-            "sProcessing": "<%-__('dataTable.processing')%>",
-            "sLengthMenu": "<%-__('dataTable.show')%> _MENU_ <%-__('dataTable.entries')%>",
-                                "sZeroRecords": "<%-__('dataTable.emptyTable')%>",
-                                "sEmptyTable": "<%-__('dataTable.emptyTable')%>",
-                                "sInfo": ["<%-__('dataTable.total')%> _TOTAL_ <%-__('dataTable.entries')%>, ",
-                                    "<%-__('dataTable.show')%> <%-__('dataTable.from')%> ",
-                                    "_START_ <%-__('dataTable.to')%> _END_"
+            "sProcessing": "<%-sails.__('dataTable.processing')%>",
+            "sLengthMenu": "<%-sails.__('dataTable.show')%> _MENU_ <%-sails.__('dataTable.entries')%>",
+                                "sZeroRecords": "<%-sails.__('dataTable.emptyTable')%>",
+                                "sEmptyTable": "<%-sails.__('dataTable.emptyTable')%>",
+                                "sInfo": ["<%-sails.__('dataTable.total')%> _TOTAL_ <%-sails.__('dataTable.entries')%>, ",
+                                    "<%-sails.__('dataTable.show')%> <%-sails.__('dataTable.from')%> ",
+                                    "_START_ <%-sails.__('dataTable.to')%> _END_"
                                 ].join(''),
-                                "sInfoEmpty": ["<%-__('dataTable.total')%> 0 <%-__('dataTable.entries')%>,",
-                                    "<%-__('dataTable.show')%>  0 <%-__('dataTable.to')%> 0"
+                                "sInfoEmpty": ["<%-sails.__('dataTable.total')%> 0 <%-sails.__('dataTable.entries')%>,",
+                                    "<%-sails.__('dataTable.show')%>  0 <%-sails.__('dataTable.to')%> 0"
                                 ].join(''),
-                                "sSearch": "<%-__('dataTable.search')%>:",
+                                "sSearch": "<%-sails.__('dataTable.search')%>:",
                                 "sInfoThousands": ",",
-                                "sLoadingRecords": "<%-__('dataTable.processing')%>",
+                                "sLoadingRecords": "<%-sails.__('dataTable.processing')%>",
                                 "oPaginate": {
-                                    "sFirst": "<%-__('dataTable.first')%>",
-                                    "sLast": "<%-__('dataTable.last')%>",
-                                    "sNext": "<%-__('dataTable.next')%>",
-                                    "sPrevious": "<%-__('dataTable.previous')%>"
+                                    "sFirst": "<%-sails.__('dataTable.first')%>",
+                                    "sLast": "<%-sails.__('dataTable.last')%>",
+                                    "sNext": "<%-sails.__('dataTable.next')%>",
+                                    "sPrevious": "<%-sails.__('dataTable.previous')%>"
                                 }
         }
     });

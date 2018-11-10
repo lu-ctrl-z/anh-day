@@ -35,7 +35,7 @@
                             <th class="size-4 alignCenter" 
                                 rowspan="1" colspan="1" style="width: 150px;">Giá bán</th>
                             <th class="size-2 alignCenter" 
-                                rowspan="1" colspan="1" style="width: 150px;"><%-__('optical.unit')%></th>
+                                rowspan="1" colspan="1" style="width: 150px;"><%-sails.__('optical.unit')%></th>
                             <th class="size-4 alignCenter" 
                                 rowspan="1" colspan="1" style="width: 150px;">Danh mục</th>
                             <th class="size-2 alignCenter" rowspan="1"
@@ -63,7 +63,7 @@
                                 <input ng-if="!product.isSubmited" type="number" min="1" id="idQuantity" value="1" class="form-control op-ux-input" style="padding-right: 0px;" ng-model="product.quantity"/>
                             </td>
                             <td class="size-4 alignCenter sorting_disabled rel" rowspan="1" colspan="1" style="width: 148px;">
-                                <a ng-if="!product.isSubmiting && !product.isSubmited" href="javascript:void(0)" ng-click="deleteProduct(product);"><%-__('common.delete')%></a>
+                                <a ng-if="!product.isSubmiting && !product.isSubmited" href="javascript:void(0)" ng-click="deleteProduct(product);"><%-sails.__('common.delete')%></a>
                                 <span ng-if="!product.isSubmiting && product.isSubmited" class="glyphicons glyphicons-ok"></span>
                                 <div  class="gif-loader spin2" ng-if="product.isSubmiting && !product.isSubmited" style="display: block; background-size: 20px 20px; height: 20px; width: 20px;"></div>
                             </td>

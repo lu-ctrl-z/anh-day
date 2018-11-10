@@ -25,7 +25,7 @@
         <div class="panel panel-default">
             <div class="panel-heading">
                 <strong class="h-i">
-                    <%-__('optical.opticalSysCatType')%>
+                    <%-sails.__('optical.opticalSysCatType')%>
                 </strong>
             </div>
             <div class="panel-body no-padding" ng-cloak>
@@ -78,7 +78,7 @@
                                 <div class="transitor-input" style="height: 28px;" ng-class="{in: showAdd}">
                                     <div class="input-group">
                                       <input title="{{nameAdd}}" name="name" type="text" ng-model="nameAdd" placeholder="Nhập tên danh mục" maxlength="255" class="form-control op-ux-input validate[required,maxSize[255]]" style="z-index:1">
-                                      <label style="cursor: pointer; display:table-cell !important;" class="input-group-addon btn-info" title="<%=__('global.save')%>">
+                                      <label style="cursor: pointer; display:table-cell !important;" class="input-group-addon btn-info" title="<%=sails.__('global.save')%>">
                                           <button type="submit" style="position:absolute; visibility: hidden;" ng-click="addNewSysCatType();"></button>
                                           <i class="glyphicons glyphicons-ok fff"></i>
                                       </label>
@@ -96,7 +96,7 @@
          <div class="panel panel-default">
             <div class="panel-heading">
                 <strong class="h-i">
-                    <%-__('optical.opticalSysCat')%> danh mục: {{sysCatType.name}}
+                    <%-sails.__('optical.opticalSysCat')%> danh mục: {{sysCatType.name}}
                 </strong>
             </div>
             <div class="panel-body border-bottom" id="formArea">
@@ -291,13 +291,13 @@ $(document).ready( function() {
 function renderActionColumn(data, type, row) {
     var html = '';
         html += '<a class="op-ux-icon-table" onclick="pressAddPrinterIcon(\'' + data.code + '\');" href="javascript:void(0);">';
-        html += "<%-__("common.print")%>";
+        html += "<%-sails.__("common.print")%>";
         html += '</a>';
         html += '<a class="op-ux-icon-table" onclick="pressEditIcon(' + data.sysCatId + ');" href="javascript:void(0);">';
-        html += "<%-__("common.edit")%>";
+        html += "<%-sails.__("common.edit")%>";
         html += '</a>';
         if(data.totalProduct == 0) {
-            html += '<a class="op-ux-icon-table" onclick="pressDeleteIcon(' + data.sysCatId + ');" href="javascript:void(0);">' + "<%-__('common.delete')%></a>";
+            html += '<a class="op-ux-icon-table" onclick="pressDeleteIcon(' + data.sysCatId + ');" href="javascript:void(0);">' + "<%-sails.__('common.delete')%></a>";
         }
         return html;
 }

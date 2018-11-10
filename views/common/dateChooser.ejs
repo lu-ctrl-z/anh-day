@@ -26,7 +26,7 @@
     $("#<%=dateChooser.id%>").focusout(function() {
         var dateStr= $("#<%=dateChooser.id%>").val();
         if (dateStr != "" && !moment(dateStr, "DD/MM/YYYY").isValid()) {
-            alert("<%=__('alert.invalidDate')%>");
+            alert("<%=sails.__('alert.invalidDate')%>");
             $("#<%=dateChooser.id%>").val("");
             $("#<%=dateChooser.id%>").focus();
         }

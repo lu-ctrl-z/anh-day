@@ -40,6 +40,7 @@ module.exports = {
     //lấy loại danh mục theo quyền của user đăng nhập
     getListByParentId: function(req, parentId, callback) {
         var paramList = [];
+        var i = 0;// $" + (++i) + "
         var column = " SELECT " +
                      "  t.sys_cat_type_id As sysCatTypeId " +
                      "  ,t.name As name " +
@@ -56,14 +57,14 @@ module.exports = {
                      "          ,tbl.total As total " +
                      "    FROM SYS_CAT_TYPE sct " +
                      "    INNER JOIN ORGANIZATION org1 ON org1.organization_id = sct.organization_id " +
-                     "    INNER JOIN ORGANIZATION org2 ON org2.organization_id = ? AND org1.path LIKE CONCAT(org2.path, '%') " + 
+                     "    INNER JOIN ORGANIZATION org2 ON org2.organization_id = $" + (++i) + " AND org1.path LIKE CONCAT(org2.path, '%') " + 
                      "    LEFT JOIN SYS_CAT sc ON sct.sys_cat_type_id= sc.sys_cat_type_id " +
                      "    LEFT JOIN ( " +
                      "        SELECT sc.sys_cat_id, COUNT(p.product_id) As total FROM SYS_CAT sc " +
                      "        INNER JOIN PRODUCT p ON p.sys_cat_id = sc.sys_cat_id AND p.is_sold = 0 " +
                      "        GROUP BY sc.sys_cat_id " +
                      "    ) tbl ON sc.sys_cat_id = tbl.sys_cat_id " +
-                     "    WHERE sct.parent_id = ? " +
+                     "    WHERE sct.parent_id = $" + (++i) + " " +
                      "      GROUP BY sct.sys_cat_type_id, sc.sys_cat_id " +
                      "  ) t " +
                      "  GROUP BY t.sys_cat_type_id "
@@ -81,6 +82,7 @@ module.exports = {
      */
     getSysCatList: function(sysCatTypeId, callback) {
         var paramList = [];
+        var i = 0;// $" + (++i) + "
         var column = " SELECT " +
                      "  sc.sys_cat_id As sysCatId " +
                      "  ,sc.sys_cat_type_id As sysCatTypeId " +
@@ -89,7 +91,7 @@ module.exports = {
                      "  ,sc.description As description ";
         var from =   " FROM SYS_CAT sc " +
                      " WHERE " +
-                     "     sc.sys_cat_type_id = ? ";
+                     "     sc.sys_cat_type_id = $" + (++i) + "? ";
         paramList.push(sysCatTypeId);
         var query = column + from;
         Dual.query(query, paramList, function(err, resultList) {
@@ -101,6 +103,7 @@ module.exports = {
      */
     loadSysCatList: function(req, res, callback) {
         var paramList = [];
+        var i = 0;// $" + (++i) + "
         var column = " SELECT " +
                      "  sc.sys_cat_id As sysCatId " +
                      "  ,sc.sys_cat_type_id As sysCatTypeId " +
@@ -111,7 +114,7 @@ module.exports = {
                      "  ,sc.warning_value As warningValue " +
                      "  ,( SELECT COUNT(*) FROM PRODUCT p WHERE p.sys_cat_id = sc.sys_cat_id AND p.is_sold = 0 ) As totalProduct " +
                      "  ,sc.description As description ";
-        var from =   " FROM SYS_CAT sc WHERE sc.sys_cat_type_id = ? ";
+        var from =   " FROM SYS_CAT sc WHERE sc.sys_cat_type_id = $" + (++i) + " ";
         paramList.push(CommonUtils.getParameterLong(req, "sysCatTypeId"));
         var dataTableParam = DataTable.getParam(req);
         var mapColumns = {

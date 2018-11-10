@@ -59,6 +59,7 @@ module.exports = {
      */
     getInvoiceList: function(req, res) {
         var paramList = [];
+        var i = 0; //$"+ (++i) + "
         var column = " SELECT " +
                      "  i.invoice_id As invoiceId " +
                      ", c.customer_id As customerId " +
@@ -76,18 +77,18 @@ module.exports = {
                    "    INNER JOIN ORGANIZATION org2 ON org1.path LIKE CONCAT(org2.path, '%')" +
                    "    INNER JOIN M_USERS u ON u.organization_id = org2.organization_id " +
                    " WHERE " +
-                   "    u.id = ? ";
+                   "    u.id = $"+ (++i) + " ";
         paramList.push(req.session.user['id']);
         if(!CommonUtils.isNullOrEmpty(req.param('invoiceCode'))) {
-            from += " AND i.invoice_code LIKE ? ";
+            from += " AND i.invoice_code LIKE $"+ (++i) + " ";
             paramList.push('%' + req.param('invoiceCode') + '%');
         }
         if(!CommonUtils.isNullOrEmpty(req.param('fullName'))) {
-            from += " AND c.full_name LIKE ? ";
+            from += " AND c.full_name LIKE $"+ (++i) + " ";
             paramList.push('%' + req.param('fullName') + '%');
         }
         if(!CommonUtils.isNullOrEmpty(req.param('createdAt'))) {
-            from += " AND DATE_FORMAT(i.createdAt, '%d/%m/%Y') = ? ";
+            from += " AND DATE_FORMAT(i.createdAt, '%d/%m/%Y') = $"+ (++i) + " ";
             paramList.push(req.param('createdAt'));
         }
         var dataTableParam = DataTable.getParam(req);
