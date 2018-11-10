@@ -1,0 +1,61 @@
+<div id="header">
+    <div class="_table">
+    <div class="table-cell">
+        <a href="/"><img src="/image/kanban.png" alt="kanban"></a>
+    </div>
+    <%if(req.session.authenticated && req.session.user.auth_type == 2) {%>
+    <div class="table-cell">
+        <a href="/admin"><i class="fa fa-cogs"></i> admin</a>
+    </div>
+    <%}%>
+    <% if(req.session.authenticated) { %>
+    <%if(res.locals.app && res.locals.app.prOfUser) {%>
+    <div class="table-cell">
+        <select role="localtion" name="project_id">
+            <option value="/">list project</option>
+        <%for(var i in res.locals.app.prOfUser) {
+        var pou = res.locals.app.prOfUser[i];%>
+            <option <%if(req.session.user.currentProject==pou.project_id.id){%> selected="selected"<%}%> value="/?pid=<%=pou.project_id.id%>"><%=pou.project_id.project_name%></option>
+        <%}%>
+        </select>
+    </div>
+    <%}%>
+    <%} else {%>
+    <div class="table-cell">
+        <a href="/login/?via=front" ><i class="fa fa-plus-square"></i>&nbsp; Login</a>
+    </div>
+    <%}%>
+    <div class="table-cell free-cell"></div>
+    <% if(req.session.authenticated) { %>
+    <% if(res.locals.sysSprint) { %>
+    <div class="table-cell">
+        <select role="localtion" name="project_id">
+          <% for(var i = 0 ; i < res.locals.sysSprint.length; i++) {%>
+            <option <%if(res.locals.sysSid == res.locals.sysSprint[i]['id']) {%>selected="selected"<%}%> value="/?pid=<%=res.locals.sysPid%>&sid=<%=res.locals.sysSprint[i]['id']%>">Sprint <%=res.locals.sysSprint[i]['sprint_name']%></option>
+          <%}%>
+        </select>
+    </div>
+    <div class="table-cell no-border">
+        
+    </div>
+    <%}%>
+    <%if(res.locals.isAdmin) { %>
+    <div class="table-cell admin-menu">
+        <a href="javascript:;" onclick="$(this).parents('.admin-menu').toggleClass('active').find('.menu-list').focus().blur(function() { var $this=$(this); setTimeout( function() { $this.parents('.admin-menu').removeClass('active'); }, 300); } );" ><i class="fa fa-cog"></i>&nbsp; Config dự án</a>
+            <ul class="menu-list" tabindex="100">
+                <li><a href="/project/add"><i class="fa fa-users"></i>&nbsp; New Project</a></li>
+                <li><a href="/user/join"><i class="fa fa-user"></i>&nbsp; New Member</a></li>
+            </ul>
+        </div>
+        <% } %>
+        <div class="table-cell">
+            <a href="/logout" ><i class="fa fa-sign-out"></i>&nbsp; logout</a>
+        </div>
+        <% } %>
+    </div>
+    <div id="butterbar" class="butterbar clearfix">
+        <div class="wrapper">
+        </div>
+        <a class="close"><i class="fa fa-times-circle"></i></a>
+    </div>
+</div>

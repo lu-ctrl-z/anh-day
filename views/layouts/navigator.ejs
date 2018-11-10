@@ -1,0 +1,174 @@
+<div class="mainEmpTabs vt-dropdown" id="mainEmpTabs" style="display: none;">
+    <button type="button" class="tabIconButton bg-success" tabindex="-1" id="toggleTabsContent">
+        <span class="glyphicons glyphicons-show-thumbnails"></span>
+    </button>
+    <div id="leftNavigator" class="leftNavigatorClass">
+        <div id="leftNavigatorInner" class="vt-navigator-inner">
+          <ul class="nav nav-boxed nav-justified">
+              <li id="customerInfoNav" class="selectedTab">
+                   <a class="cmd-shortcut" data-shortcut-key="Ctrl+Alt+1" href="/customer?menuCode=CUSTOMER_NAV_01" 
+                        title="<%-__('customer.customerInfoNav')%>">
+                        <i class="color-success glyphicons glyphicons-family"></i>
+                        <span><%-__('customer.customerInfoNav')%></span>
+                   </a>
+              </li>
+              <li id="invoiceInfoNav">
+                   <a class="cmd-shortcut" data-shortcut-key="Ctrl+Alt+1" href="/invoice?menuCode=INVOICE_NAV_02" 
+                        title="<%-__('invoice.invoiceInfoNav')%>">
+                        <i class="color-success glyphicons glyphicons-notes-2"></i>
+                        <span><%-__('invoice.invoiceInfoNav')%></span>
+                   </a>
+              </li>
+              <li id="opticalInfoNav">
+                   <a class="cmd-shortcut" data-shortcut-key="Ctrl+Alt+1" href="/optical?menuCode=PRODUCT_NAV_03" 
+                        title="<%-__('optical.opticalInfoNav')%>">
+                        <i class="color-success glyphicons glyphicons-barcode"></i>
+                        <span><%-__('optical.opticalInfoNav')%></span>
+                   </a>
+              </li>
+              <li id="commonLink1">
+                   <a class="cmd-shortcut" data-shortcut-key="Ctrl+Alt+1" href="/sale?menuCode=PRODUCT_NAV_04" 
+                        title="<%=__('commonLink.1')%>">
+                        <i class="color-success glyphicons glyphicons-file-plus"></i>
+                        <span><%=__('commonLink.1')%></span>
+                   </a>
+              </li>
+              <li id="commonLink2">
+                  <a class="cmd-shortcut" data-shortcut-key="Ctrl+Alt+2" href="/product?menuCode=PRODUCT_NAV_05" 
+                        title="<%=__('commonLink.2')%>">
+                        <i class="color-success glyphicons glyphicons-disk-open"></i>
+                        <span><%=__('commonLink.2')%></span>
+                   </a>
+              </li>
+          </ul>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(function() {
+        /*S Xử lý scroll menu navigator*/
+        var positionInfo = {};
+        function caculatorLeft() {
+            var buttonLeft = $("#mainEmpTabs").position().left,
+                contentWidth = $(window).width() - 50,
+                showWidth = $('#leftNavigator').width() + 20,
+                buttonTop  = $("#mainEmpTabs").position().top - 15,
+                contentHeight = $(window).height() - 50,
+                showHeight = $('#leftNavigator').height() + 20;
+            $('#leftNavigator').css('margin-left', 'auto');
+            $('#leftNavigator').css('margin-top', 'auto');
+            $('#leftNavigator').css('bottom', '');
+            if($("#mainEmpTabs").hasClass('minTop') || $("#mainEmpTabs").hasClass('maxTop')) {
+                if(buttonLeft + showWidth >= contentWidth - 30) {
+                    $('#leftNavigator').css('margin-left', 0 - buttonLeft - showWidth + contentWidth + 30);
+                }
+            }
+            if($("#mainEmpTabs").hasClass('minLeft') || $("#mainEmpTabs").hasClass('maxLeft')) {
+                if(buttonTop + 50 <= showHeight) {
+                    $('#leftNavigator').css('bottom', 0 - showHeight + buttonTop + 50);
+                }
+            }
+        }
+        function caculateNewPosition() {
+            var buttonLeft = $("#mainEmpTabs").position().left,
+                buttonTop  = $("#mainEmpTabs").position().top - 15,
+                contentWidth = $(window).width() - 50,
+                contentHeight = $(window).height() - 50,
+                percentLeft = (buttonLeft+25)/contentWidth * 100,
+                percentTop = (buttonTop+25)/contentHeight * 100;
+            var scope = {
+                minLeft: 15,
+                maxLeft: $(window).width() - 75,
+                minTop: 15,
+                maxTop: $(window).height() + $('#header').height() - 65,
+            };
+            var returnPosition = {left: $("#mainEmpTabs").position().left, top: $("#mainEmpTabs").position().top, className1: "", className2: ""};
+            if(percentLeft <= 0) {
+                returnPosition.left = scope.minLeft;
+                returnPosition.className1 = "minLeft";
+            }
+            if(percentTop <= 0) {
+                returnPosition.top = scope.minTop;
+                returnPosition.className2 = "minTop";
+            }
+            if(percentLeft >= 100) {
+                returnPosition.left = scope.maxLeft;
+                returnPosition.className1 = "maxLeft";
+            }
+            if(percentTop >= 100) {
+                returnPosition.top = scope.maxTop;
+                returnPosition.className2 = "maxTop";
+            }
+            if(0 < percentLeft && percentLeft < 100 && 0 < percentTop && percentTop < 100) {
+                var left = buttonLeft, top = buttonTop, right = contentWidth - buttonLeft, bottom = contentHeight - buttonTop;
+                if(left == Math.min(left, top, right, bottom)) {
+                    returnPosition.left = scope.minLeft;
+                    returnPosition.className1 = "minLeft";
+                } else if (top == Math.min(left, top, right, bottom)) {
+                    returnPosition.top = scope.minTop;
+                    returnPosition.className2 = "minTop";
+                } else if (right == Math.min(left, top, right, bottom)) {
+                    returnPosition.left = scope.maxLeft;
+                    returnPosition.className1 = "maxLeft";
+                } else {
+                    returnPosition.top = scope.maxTop;
+                    returnPosition.className1 = "maxTop";
+                }
+            }
+            return returnPosition;
+        }
+        
+        function initDrag(e) {
+            document.addEventListener('mousemove', doDrag, false);
+            document.addEventListener('mouseup', stopDrag, false);
+            hideDialogOverlay();
+        }
+        function doDrag(e) {
+            $("#mainEmpTabs").css("left", e.clientX-25);
+            $("#mainEmpTabs").css("top", e.clientY-25);
+            $("#toggleTabsContent").addClass('moving');
+            $("#mainEmpTabs").removeClass('open');
+        }
+        function stopDrag(e) {
+            document.removeEventListener('mousemove', doDrag, false);
+            document.removeEventListener('mouseup', stopDrag, false);
+            setTimeout(function() {
+                $("#toggleTabsContent").removeClass('moving');
+                var returnPosition = caculateNewPosition();
+                gotoPosition(returnPosition, 500);
+            }, 100);
+        }
+        function gotoPosition(returnPosition, time) {
+            $("#mainEmpTabs").animate(returnPosition, time, function() {
+                caculatorLeft();
+            });
+            $("#mainEmpTabs").removeClass('minLeft minTop maxLeft maxTop');
+            $("#mainEmpTabs").addClass(returnPosition.className1);
+            $("#mainEmpTabs").addClass(returnPosition.className2);
+            localStorage.setItem("positionNavigator", JSON.stringify(returnPosition));
+        }
+        if(typeof localStorage.getItem("positionNavigator") == 'string') {
+            try {
+                gotoPosition(JSON.parse(localStorage.getItem("positionNavigator")), 0);
+                $('#mainEmpTabs').show();
+            } catch(e) {
+                $('#mainEmpTabs').show();
+            }
+        } else {
+            $('#mainEmpTabs').show();
+        }
+        $("#toggleTabsContent").on("mousedown", initDrag);
+        $("html").on('click', '#toggleTabsContent:not(.moving)', function() {
+            $(this).parent().toggleClass('open');
+            if($(this).parent().hasClass('open')) {
+                showDialogOverlay(true);
+            } else {
+                hideDialogOverlay();
+            }
+        });
+        $(window).resize(function(){
+            stopDrag();
+        });
+        /*E Xử lý scroll menu navigator*/
+    });
+</script>

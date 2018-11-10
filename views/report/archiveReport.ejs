@@ -1,0 +1,107 @@
+<div id="archiveChartDiv">
+    <canvas id="archiveChart" height="333" width="1000"></canvas>
+</div>
+<script type="text/javascript">
+//INITIALIZATION
+function processArchiveData() {
+    var resultData = {};
+    resultData.labels = [];
+    resultData.datasets = {};
+    resultData.datasets.data1 = {};
+    resultData.tooltips = [];
+    resultData.datasets.data1.data = [];
+    resultData.datasets.data1.dataLabel = [];
+    var infoArchive = {};
+    var reportData = fromJson(<%-reportData%>);
+    var mapData = {};
+    for(var i = 0; i < reportData.length; i++) {
+        mapData[reportData[i].reportDate] = reportData[i];
+    }
+    var fromDate = moment('<%=fromDate%>', 'DD/MM/YYYY');
+    var toDate = moment('<%=toDate%>', 'DD/MM/YYYY');
+    infoArchive.fromDate = fromDate.format('DD/MM/YYYY');
+    infoArchive.toDate = toDate.format('DD/MM/YYYY');
+    var iDay = fromDate;
+    infoArchive.totalSold = 0;
+    while (iDay.isBefore(toDate) || iDay.isSame(toDate)) {
+        var reportDate = iDay.format('DD/MM/YYYY');
+        resultData.labels.push(iDay.format('DD/MM'));
+        var tooltip = iDay.format("[Hết ngày] DD/MM/YYYY");
+        var dataLabel1 = "";
+        if(mapData[reportDate]) {
+            resultData.datasets.data1.data.push(mapData[reportDate].countArchive);
+            dataLabel1 += formatMoney(mapData[reportDate].countArchive);
+            dataLabel1 += ". Xuất trong ngày: " + mapData[reportDate].countSold;
+            infoArchive.totalSold += mapData[reportDate].countSold;
+            if(reportDate == infoArchive.fromDate) {
+                infoArchive.beginArchive = formatMoney(mapData[reportDate].countArchive);
+            }
+            if(reportDate == infoArchive.toDate) {
+                infoArchive.endArchive = formatMoney(mapData[reportDate].countArchive);
+            }
+        } else {
+            resultData.datasets.data1.data.push(0);
+            tooltip += "0";
+            dataLabel1 += "0";
+        }
+        resultData.tooltips.push(tooltip);
+        resultData.datasets.data1.dataLabel.push(dataLabel1);
+
+        iDay.add(1, 'day');
+    }
+    getScopeCtl().infoArchive = infoArchive;
+    getScopeCtl().$apply();
+    return resultData;
+}
+var drawArchiveChart = function() {
+    var resultData = processArchiveData();
+    var barChartData = {
+            tooltips: resultData.tooltips,
+            labels: resultData.labels,
+            datasets: [{
+                label: 'Hàng tồn kho',
+                fill: false,
+                backgroundColor: 'rgb(54, 162, 235)',
+                borderColor: 'rgb(54, 162, 235)',
+                data: resultData.datasets.data1.data,
+                dataLabel: resultData.datasets.data1.dataLabel,
+            }]
+        };
+
+    var ctx = document.getElementById("archiveChart").getContext("2d");
+    window.archiveLine = new Chart.Line(ctx, {
+        data: barChartData,
+        options: {
+            responsive: true,
+            hoverMode: 'index',
+            stacked: false,
+            title:{
+                display:true,
+                text:"Biểu đồ thống kê tồn kho <%=organizationBO.organizationName%>"
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    title: function(tooltipItem, data) {
+                      return data['tooltips'][tooltipItem[0]['index']];
+                    },
+                    label: function(tooltipItem, data) {
+                      return data['datasets'][tooltipItem['datasetIndex']]['label'] + ": " 
+                           + data['datasets'][tooltipItem['datasetIndex']]['dataLabel'][tooltipItem.index];
+                    },
+               }
+            },
+            scales: {
+                yAxes: [{
+                    display: true,
+                    ticks: {
+                        beginAtZero: true
+                    },
+                }]
+            }
+        }
+    });
+}
+drawArchiveChart();
+</script>

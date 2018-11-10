@@ -1,0 +1,167 @@
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+body {
+    font-family: "SFUIText-Regular","Segoe UI",Helvetica Neue,Helvetica,Arial,sans-serif !important;
+    color: #000;
+    font-size: 11px;
+    line-height: 12px;
+}
+#bodyPrinter {
+    background-color: #333;
+}
+.tem-container {
+    position: relative;
+    margin: 0 auto;
+    list-style-type: none;
+}
+.tem-item {
+    padding: 2.5mm 3.5mm;
+    background-color: #ddd;
+    border-top: 1px dashed #109bdc;
+}
+.tem-item:FIRST-CHILD {
+    border-top: none;
+}
+.tuc {
+    text-transform: uppercase;
+    position: relative;
+    margin: 0px -2px;
+    /* font-weight: bold; */
+}
+.tem-item-wrapper {
+    background-color: #fff;
+    border-radius: 5px;
+    position: relative;
+}
+.print-border {
+    border: 1px solid #555555;
+}
+.print-inner {
+    vertical-align: middle;
+    padding: 1mm;
+    position: relative;
+    overflow: hidden;
+    height: 100%; 
+}
+/*css cho từng template*/
+.key-template-1 .tem-container{
+    width: 73mm;
+}
+.key-template-1 .tem-item-wrapper{
+    height: 50mm;
+}
+.key-template-1 .content {
+    width: 15mm;
+    height: 45mm;
+    position: absolute;
+    border-radius: 6px;
+    top: 2.5mm;
+}
+.key-template-1 .content-up{
+    right: 2.5mm;
+    border-left: none;
+}
+.key-template-1 .content-down{
+    right: 17.5mm;
+    border-right: dashed 1px #333;
+}
+.key-template-1 .content-up .transform{
+    -ms-transform: rotate(90deg);
+    -webkit-transform: rotate(90deg);
+    transform: rotate(90deg); 
+}
+.key-template-1 .content-down .transform{
+    -ms-transform: rotate(-90deg);
+    -webkit-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+.key-template-1 .transform-inner{
+    bottom: 16mm;
+    height: 13mm;
+    left: -13mm;
+    position: absolute;
+    text-align: center;
+    width: 43mm; 
+}
+.key-template-1 .rage{
+    width: 26mm;
+    height: 8mm;
+    top: 50%;
+    margin-top: -4mm;
+    position: absolute;
+    right: 32.3mm;
+    background-color:#fff;
+    border-right: none;
+}
+.key-template-1 .code{
+    position: relative;
+    margin-top: -9px;
+}
+/*css cho từng template*/
+.key-template-2 .tem-container{
+    width: 59mm;
+    font-size: 9px;
+}
+.key-template-2 .tem-item-wrapper{
+    height: 25mm;
+}
+.key-template-2 .tem-item{
+    padding: 1.5mm 3mm;
+}
+.key-template-2 .content {
+    width: 25mm;
+    height: 25mm;
+    position: absolute;
+    border-radius: 6px;
+    top: 0mm;
+}
+.key-template-2 .content-up{
+    left: 0mm;
+    text-align: center;
+}
+.key-template-2 .content-down{
+    right: 0mm;
+    text-align: center;
+}
+.key-template-2 .rage{
+    width: 26mm;
+    height: 8mm;
+    top: 50%;
+    margin-top: -4mm;
+    position: absolute;
+    right: 32.3mm;
+    background-color:#fff;
+    border-right: none;
+}
+.key-template-2 .code{
+    position: relative;
+    margin-top: -9px;
+}
+.key-template-2 svg.barcode {
+    transform: translate(-12px,0) scale(0.9, 1) !important;
+}
+/********************/
+.key-template-1 svg.barcode {
+	transform: translate(0,0) scale(0.7, 1) !important;
+	position: relative;
+	margin-left: -14px;
+	margin-top: -5px;
+}
+@media print {
+    .print-border {
+        border: 1px solid #ffffff;
+    }
+    .tem-item {
+        border-top: 1px solid #ffffff;
+    }
+    .key-template-1 .content-down {
+        border-right: dashed 1px #ffffff;
+    }
+    @page {
+        size: auto;   /* auto is the initial value */
+        margin: 0;  /* this affects the margin in the printer settings */
+    }
+}

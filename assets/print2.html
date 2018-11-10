@@ -1,0 +1,44 @@
+<html moznomarginboxes="" mozdisallowselectionprint="">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>In tem</title>
+<link rel="canonical" href="https://www.vnoptical.com/">
+<link rel="alternate" media="handheld" href="https://m.vnoptical.com/">
+<meta name="theme-color" content="#e62117">
+<script src="/js/jquery.min.js"></script>
+<script src="/js/angular.min.js"></script>
+<script src="/js/angular-animate.min.js"></script>
+<script src="/js/angular-sanitize.min.js"></script>
+<script src="/js/masks.js"></script>
+<script src="/js/ngStorage.min.js"></script>
+<script src="/js/d2t.js"></script>
+<script src="/js/JsBarcode.code128.min.js"></script>
+<script type="text/javascript">
+var STG_PRINT_NAME = 'printSelectedItem';
+var STG_PRINT_CURRENT = '_pCurrentCode';
+var TOKEN_NAME = '_csrf';
+</script>
+<style type="text/css">
+@media print {
+    @page {
+        size: auto;
+        margin: 0;
+    }
+    .borderDemo {
+        border: none;
+    }
+    .print-item .side-up.borderDemo{
+        border: none;
+    }
+    .modal-footer,
+    .checkedItem {
+        display: none;
+    }
+    .isPrintOne .print-item {
+        display: none;
+    }
+    .isPrintOne .printSelected {
+        display: block;
+    }
+}
+</style>

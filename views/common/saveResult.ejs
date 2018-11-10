@@ -1,0 +1,21 @@
+<div id="saveResultDisplayTag">
+    <script>
+        d2tResetToken('<%=_csrf%>');
+        <%if(typeof message === 'undefined') { message = ""; }
+          if(typeof callback === 'undefined') {
+              if(typeof req.param('callback') !== 'undefined') {
+                  callback = req.param('callback');
+              } else {
+                  callback = "";
+              }
+          }
+          if(typeof extraValue === 'undefined') { extraValue = "";}%>
+        <%if(typeof returnCode !== 'undefined') {%>
+            <%if(typeof returnData === 'undefined') {%>
+                d2tProcessReturnMessage('<%=returnCode%>', '<%=message%>', '<%=callback%>', '<%=extraValue%>');
+            <%} else {%>
+                d2tProcessReturnMessage('<%=returnCode%>', '<%=message%>', '<%=callback%>', '<%=extraValue%>', <%-returnData%>);
+            <%}%>
+        <%}%>
+    </script>
+</div>

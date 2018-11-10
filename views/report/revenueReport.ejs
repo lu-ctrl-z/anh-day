@@ -1,0 +1,115 @@
+<div id="revenueChartDiv">
+    <canvas id="revenueChart" height="333" width="1000"></canvas>
+</div>
+<script type="text/javascript">
+//INITIALIZATION
+function processData() {
+    var sum = {totalPrice: 0, countInvoice: 0, trueTotalPrice: 0, totalDiscount: 0};
+    var resultData = {};
+    resultData.labels = [];
+    resultData.datasets = {};
+    resultData.datasets.data1 = {};
+    resultData.datasets.data2 = {};
+    resultData.tooltips = [];
+    resultData.datasets.data1.data = [];
+    resultData.datasets.data1.dataLabel = [];
+    resultData.datasets.data2.data = [];
+    resultData.datasets.data2.dataLabel = [];
+    
+    var reportData = fromJson(<%-reportData%>);
+    var mapData = {};
+    for(var i = 0; i < reportData.length; i++) {
+        mapData[reportData[i].dateReport] = reportData[i];
+    }
+    var fromDate = moment('<%=fromDate%>', 'DD/MM/YYYY');
+    var toDate = moment('<%=toDate%>', 'DD/MM/YYYY');
+    var iDay = fromDate;
+    while (iDay.isBefore(toDate) || iDay.isSame(toDate)) {
+        var reportDate = iDay.format('DD/MM/YYYY');
+        resultData.labels.push(iDay.format('DD'));
+        var tooltip = iDay.format("[Ngày] DD/MM/YYYY [doanh số: ]");
+        var dataLabel1 = "0 VNĐ";
+        var dataLabel2 = "0 VNĐ";
+        if(mapData[reportDate]) {
+            resultData.datasets.data1.data.push(mapData[reportDate].trueTotalPrice);
+            resultData.datasets.data2.data.push(mapData[reportDate].totalDiscount);
+            tooltip += formatMoney(mapData[reportDate].totalPrice) + " VNĐ";
+            dataLabel1 = formatMoney(mapData[reportDate].trueTotalPrice) + " VNĐ (" 
+                    + Math.round(100*(mapData[reportDate].trueTotalPrice/mapData[reportDate].totalPrice))
+                    + "%)";
+            dataLabel2 = formatMoney(mapData[reportDate].totalDiscount) + " VNĐ (" 
+                    + Math.round(100*(mapData[reportDate].totalDiscount/mapData[reportDate].totalPrice))
+                    + "%)";
+            sum.totalPrice += mapData[reportDate].totalPrice;
+            sum.trueTotalPrice += mapData[reportDate].trueTotalPrice;
+            sum.totalDiscount += mapData[reportDate].totalDiscount;
+            sum.countInvoice += mapData[reportDate].countInvoice;
+        } else {
+            resultData.datasets.data1.data.push(0);
+            resultData.datasets.data2.data.push(0);
+            tooltip += "0 VNĐ";
+        }
+        resultData.tooltips.push(tooltip);
+        resultData.datasets.data1.dataLabel.push(dataLabel1);
+        resultData.datasets.data2.dataLabel.push(dataLabel2);
+        iDay.add(1, 'day');
+    }
+    //thông tin được truyền lại cho controller xử lý
+    getScopeCtl().info = sum;
+    getScopeCtl().$apply();
+    return resultData;
+}
+var drawRevenueChart = function() {
+    var resultData = processData();
+    var barChartData = {
+            tooltips: resultData.tooltips,
+            labels: resultData.labels,
+            datasets: [{
+                label: 'Thực nhận',
+                backgroundColor: 'rgb(54, 162, 235)',
+                data: resultData.datasets.data1.data,
+                dataLabel: resultData.datasets.data1.dataLabel,
+            }, {
+                label: 'Giảm trừ',
+                backgroundColor: 'rgb(255, 99, 132)',
+                data: resultData.datasets.data2.data,
+                dataLabel: resultData.datasets.data2.dataLabel,
+            }]
+        };
+
+    var ctx = document.getElementById("revenueChart").getContext("2d");
+    window.myBar = new Chart(ctx, {
+        type: 'bar',
+        data: barChartData,
+        options: {
+            title:{
+                display:true,
+                text:"Biểu đồ doanh số đơn vị <%=organizationBO.organizationName%>"
+            },
+            tooltips: {
+                mode: 'index',
+                intersect: false,
+                callbacks: {
+                    title: function(tooltipItem, data) {
+                      return data['tooltips'][tooltipItem[0]['index']];
+                    },
+                    label: function(tooltipItem, data) {
+                      return data['datasets'][tooltipItem['datasetIndex']]['label'] + ": " 
+                           + data['datasets'][tooltipItem['datasetIndex']]['dataLabel'][tooltipItem.index];
+                    },
+               }
+            },
+            responsive: true,
+            scales: {
+                xAxes: [{
+                    stacked: true,
+                }],
+                yAxes: [{
+                    stacked: true
+                }]
+            }
+        }
+    });
+}
+drawRevenueChart();
+</script>

@@ -1,0 +1,218 @@
+<div id="content-body" ng-app="productApp"
+    ng-controller="ProductController">
+    <div class="row fullRow">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="h-i">
+                    <span class="glyphicons glyphicons-show-big-thumbnails"></span> <span>Quét mã vạch để nhập, có thể nhập theo tên, danh mục hoặc mã sản phẩm.</span>
+                </strong>
+            </div>
+            <div class="panel-body">
+                <form id="frmSave" class="form-horizontal">
+                    <input type='hidden' name='_csrf' value='<%- _csrf %>'>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <div class="input-group input-barcode-reader ui-widget" id="input-barcode-reader">
+                                <span class="input-group-addon"><i class="glyphicons glyphicons-barcode" aria-hidden="true"></i></span>
+                                <input type="text" id="input-text" style="z-index:1" maxlength="20" value='' name="code" class="op-ux-input form-control barcode validate[required]">
+                                <div class="gif-loader spin2"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" onclick="pressSaveButton(); return false;" style="display: none;"></button>
+                </form>
+            <form id="frmSaveAll" class="form-horizontal">
+                <input type='hidden' name='_csrf' value='<%- _csrf %>'>
+                <table class="table table-bordered table-striped dataTable no-footer" id="productTbl" role="grid" style="width: 100%;">
+                    <thead>
+                        <tr role="row">
+                            <th class="size-1 alignCenter" rowspan="1"
+                                colspan="1" style="width: 28px;" aria-label="STT">STT</th>
+                            <th class="size-4 alignCenter" 
+                                rowspan="1" colspan="1" style="width: 100px;">Mã</th>
+                            <th class="size-5 alignCenter" 
+                                rowspan="1" colspan="1" style="width: 150px;">Tên</th>
+                            <th class="size-4 alignCenter" 
+                                rowspan="1" colspan="1" style="width: 150px;">Giá bán</th>
+                            <th class="size-2 alignCenter" 
+                                rowspan="1" colspan="1" style="width: 150px;"><%-__('optical.unit')%></th>
+                            <th class="size-4 alignCenter" 
+                                rowspan="1" colspan="1" style="width: 150px;">Danh mục</th>
+                            <th class="size-2 alignCenter" rowspan="1"
+                                colspan="1">In tem</th>
+                            <th class="size-2 alignCenter" 
+                                rowspan="1" colspan="1">Số lượng</th>
+                            <th class="size-4 alignCenter sorting_disabled" rowspan="1"
+                                colspan="1" style="width: 148px;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="odd" ng-repeat="product in productList">
+                            <td class="alignCenter">{{$index+1}}</td>
+                            <td class="size-4 alignCenter" style="width: 100px;">{{product.code}}</td>
+                            <td class="size-5 alignLeft" style="width: 150px;">{{product.name}}</td>
+                            <td class="size-4 alignRight" style="width: 150px;">{{product.price | number2Decimal}} VNĐ</td>
+                            <td class="size-2 alignCenter" style="width: 150px;">{{product.unit}}</td>
+                            <td class="size-4 alignLeft" style="width: 150px;">{{product.typeName}}</th>
+                            <td class="alignCenter">
+                                <input ng-if="!product.isSubmited" type="checkbox" ng-model="product.isCheckPrint">
+                                <span ng-if="product.isSubmited">{{product.isCheckPrint ? "Có" : "Không"}}</span>
+                            </td>
+                            <td class="size-2 alignRight" rowspan="1" colspan="1">
+                                <span ng-if="product.isSubmited">{{product.quantity}}</span>
+                                <input ng-if="!product.isSubmited" type="number" min="1" id="idQuantity" value="1" class="form-control op-ux-input" style="padding-right: 0px;" ng-model="product.quantity"/>
+                            </td>
+                            <td class="size-4 alignCenter sorting_disabled rel" rowspan="1" colspan="1" style="width: 148px;">
+                                <a ng-if="!product.isSubmiting && !product.isSubmited" href="javascript:void(0)" ng-click="deleteProduct(product);"><%-__('common.delete')%></a>
+                                <span ng-if="!product.isSubmiting && product.isSubmited" class="glyphicons glyphicons-ok"></span>
+                                <div  class="gif-loader spin2" ng-if="product.isSubmiting && !product.isSubmited" style="display: block; background-size: 20px 20px; height: 20px; width: 20px;"></div>
+                            </td>
+                        </tr>
+                        <tr class="odd" ng-if="productList.length == 0"><td valign="top" colspan="9" class="dataTables_empty">Không có bản ghi nào</td></tr>
+                    </tbody>
+                </table>
+            </form>
+            </div>
+            <div class="panel-footer" ng-if="productList.length > 0">
+                <button type="button" class="btn btn-primary" ng-click="processSaveAll()">Lưu lại</button>
+            </div>
+        </div>
+        <%- include ../common/saveResultDisplay%>
+    </div>
+</div>
+<script type="text/javascript">
+    var productApp = angular.module('productApp', [ 'ngAnimate', 'ngSanitize', 'ngStorage' ]);
+    productApp.controller('ProductController', function($scope, $http, $localStorage, $filter, $compile) {
+        $scope.productList = [];
+        $scope.submitList = [];
+        $scope.isSearch = !1;
+        $scope.addItem = function(product) {
+            var _product = product[0];
+            if(!_product) {
+                toastr["warning"]("Không tìm thấy sản phẩm");
+                return;
+            }
+            _product.quantity = 1;
+            _product.isCheckPrint = false;
+            $scope.productList.unshift(_product);
+            if(!$scope.$phase) {
+                $scope.$apply();
+            }
+        }
+        $scope.deleteProduct = function (product){
+            var index = $scope.productList.indexOf(product);
+            console.log(index);
+            $scope.productList.splice(index, 1);
+        }
+        $scope.getProductOrder = function() {
+            for(var i = 0; i < $scope.productList.length; i++) {
+                if(!$scope.productList[i].isSubmited) {
+                    return $scope.productList[i];
+                }
+            }
+            return false;
+        }
+        $scope.processSaveItem = function() {
+            var areaId = 'saveResultDisplayTag';
+            var actionUrl = '/product/process-save?' + d2tGetToken();
+            var product = $scope.getProductOrder();
+            if(product) {
+                product.isSubmiting = true;
+                $.ajax({
+                    url: actionUrl,
+                    type: 'POST',
+                    data: {
+                        productList: [product]
+                    },
+                    success: function (data) {
+                        if(product.isCheckPrint) {
+                            for(var i = 0; i < product.quantity; i++) {
+                                add2Store(product.code);
+                            }
+                        }
+                        product.isSubmited = true;
+                        product.isSubmiting = false;
+                        $scope.$apply();
+                        $('#' + areaId).empty().append(data);
+                        setTimeout(function() {
+                            $scope.processSaveItem();
+                            $scope.$apply();
+                        }, 200);
+                    },
+                    error: function(err){
+                        console.log(err);
+                    }
+                });
+            } else {
+                //onFinishSave();
+                angular.element(document.getElementById('print-container')).scope().getPendingCount();
+            }
+        }
+        $scope.processSaveAll = function() {
+            if(!confirmSave()) {
+                return;
+            }
+            $scope.processSaveItem();
+        }
+        function initStore() {
+            var defaultTo = {}; defaultTo[STG_PRINT_NAME] = []; defaultTo[STG_PRINT_CURRENT] = '';
+            $scope.$storage = $localStorage.$default(defaultTo);
+        }
+        function add2Store(code) {
+            initStore();
+            $scope.$storage[STG_PRINT_NAME].unshift({code: code, quantity: 1, tem1: !0, tem2: !0});
+            $scope.$storage[STG_PRINT_CURRENT] = code;
+            $scope.$storage.$apply();
+        }
+    }).filter('number2Decimal', [
+         function() { // should be altered to suit your needs
+             return function(input) {
+                 return (input)? input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "";
+         };
+    }]);
+    $(document).ready( function() {
+        if (!angular.element(document.getElementById('content-body')).scope()) {
+            angular.bootstrap(document.getElementById("content-body"), [ 'productApp' ]);
+        }
+    });
+    var onLoadDone = function(data) {
+        if(data) {
+            angular.element(document.getElementById('content-body')).scope().addItem(data);
+        }
+        $('#input-barcode-reader').removeClass('barcode-loading');
+        $('#input-text').val('').focus();
+    }
+    function pressSaveButton() {
+        $('#input-barcode-reader').addClass('barcode-loading');
+        if($('#frmSave').validationEngine('validate')) {
+            var areaId = '';
+            var actionUrl = '/product/load-by-code?';
+            var formData = getFormAsString('frmSave');
+            d2tDeferredAjax(areaId, actionUrl, formData, "GET").done(onLoadDone);
+        } else {
+            onLoadDone();
+        }
+    }
+    $(function() {
+        $('#input-text').autocomplete({
+          minLength: 2,
+          source: function( request, response ) {
+              $.ajax({
+                url: "/product/load-by-code",
+                dataType: "json",
+                data: {
+                    code: request.term
+                },
+                success: response,
+              });
+          },
+          select: function( event, ui ) { //when an item is selected
+              //use the ui.item object
+              setTimeout(pressSaveButton, 100);
+          }
+        }).autocomplete("instance")._renderItem = function( ul, item ) {
+            return $( "<li>" ).append( "<div class='blockCode'>" + item.code + "<i class='priceCode'>" + (item.price ? (formatMoney(item.price) + " VNĐ") : "" ) + "</i></div><div class='descCode'><b>" + item.name + "</b> - <i>" + item.typeName + "</i></div>" )
+            .appendTo( ul );
+        };
+      });
+</script>

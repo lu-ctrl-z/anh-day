@@ -1,0 +1,178 @@
+<div id="content-body"
+    ng-app="homeApp"
+    ng-controller="HomeController"
+>
+<div class="cs-page__container" ng-cloak>
+    <div id="divSearch" data-cs-page="0" data-page-index="currentPage">
+        <%include ../customer/customerSearchForm%>
+    </div>
+    <div id="divSave" data-cs-page="1" data-page-index="currentPage">
+        <%include ../customer/customerForm%>
+    </div>
+</div>
+    <div id="divList" class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="h-i">
+                <%-__('customer.customerInfoList')%>
+            </strong>
+        </div>
+        <div class="panel-body" id="divListCustomer">
+            <%include ../customer/customerList%>
+        </div>
+    </div>
+    
+    <%- include ../common/saveResultDisplay%>
+</div>
+<script type="text/javascript">
+var homeApp = angular.module('homeApp', ['ngAnimate', 'ngSanitize', 'csProgress' ]);
+var customerTbl;
+homeApp.controller('HomeController', function( $scope, $http, $filter, $compile) {
+    $scope.CS_PAGE = {
+        SEARCH: 0,
+        FORM: 1,
+        INVOICE: 2,
+    }
+    //Khoi tao trang
+    $scope.currentPage = $scope.CS_PAGE.SEARCH;
+    
+    $scope.compileAreaId = function(areaId) {
+        $compile($('#'+areaId).contents())($scope);
+    }
+});
+function pressSearchButton() {
+    if($('#frmSearch').validationEngine('validate')) {
+        customerTbl.ajax.reload();
+    }
+}
+function pressAddButton() {
+    d2tResetForm('frmSave');
+}
+function pressSaveAndInvoice() {
+    if($('#frmSave').validationEngine('validate') && confirmSave()) {
+        var areaId = 'saveResultDisplayTag';
+        var actionUrl = '/customer/save-and-invoice?';
+        var formData = getFormAsString('frmSave');
+        d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSaveAndInvoice");
+    }
+}
+function pressSaveButton() {
+    if($('#frmSave').validationEngine('validate') && confirmSave()) {
+        var areaId = 'saveResultDisplayTag';
+        var actionUrl = '/customer/save-and-invoice?';
+        var formData = getFormAsString('frmSave');
+        d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSave");
+    }
+}
+function pressEditIcon(customerId) {
+    var areaId = 'divSave';
+    var actionUrl = '/customer/edit';
+    d2tDeferredAjax(areaId, actionUrl, "customerId=" + customerId, "GET").done(function() {
+        var $scope = angular.element(document.getElementById('content-body')).scope();
+        $scope.compileAreaId(areaId);
+        $scope.currentPage = $scope.CS_PAGE.FORM;
+        $scope.$apply();
+        setTimeout(function() {
+            d2tScrollTo(areaId);
+        }, 300);
+    });
+}
+function pressDeleteIcon(customerId) {
+    if(confirmDelete()) {
+        var areaId = 'saveResultDisplayTag';
+        var actionUrl = '/customer/delete?';
+        var formData = "customerId=" + customerId + d2tGetToken();
+        d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSave");
+    }
+}
+function pressInvoiceIcon(customerId) {
+    if(confirmDelete()) {
+        var areaId = 'saveResultDisplayTag';
+        var actionUrl = '/customer/delete?';
+        var formData = "customerId=" + customerId + d2tGetToken();
+        d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSave");
+    }
+}
+function callbackAfterSaveAndInvoice(returnCode, extraValue) {
+    console.log(returnCode, extraValue);
+    d2tResetForm('frmSave');
+    pressSearchButton();
+    var $scope = angular.element(document.getElementById('content-body')).scope();
+    $scope.currentPage = $scope.CS_PAGE.SEARCH;
+    $scope.$apply();
+    window.open('/invoice/form/?customerId=' + extraValue, '_blank', '<%=__("config.invoiceFormatPopup")%>');
+}
+function callbackAfterSave(returnCode, extraValue) {
+    d2tResetForm('frmSave');
+    var $scope = angular.element(document.getElementById('content-body')).scope();
+    $scope.currentPage = $scope.CS_PAGE.SEARCH;
+    $scope.$apply();
+    pressSearchButton();
+}
+$(document).ready( function() {
+    if (!angular.element(document.getElementById('content-body')).scope()) {
+        angular.bootstrap(document.getElementById("content-body"), [ 'homeApp' ]);
+    }
+    $.fn.dataTable.ext.legacy.ajax = true;
+    customerTbl = $('#customerTbl').DataTable({
+        processing : true,
+        serverSide : true,
+        deferLoading: 90,
+        ajax : {
+            url : '/customer/list',
+            type : 'GET',
+            dataSrc : 'data',
+            data : function (data) {
+                var formData = getFromAsObject('frmSearch');
+                d2tCopyProperty(data, formData);
+                return data;
+            }
+        },
+        columns : [
+               {
+                   searchable : false,
+                   orderable : false,
+                   data : null,
+                   targets : 0,
+                   className : "alignCenter",
+                   render : function(data, type, row, cell) {
+                       var info = customerTbl.page.info();
+                       var stt = 1 + (info.page * info.length) + cell.row;
+                       return stt;
+                   }
+               },
+               { data : "phoneNumber", },
+               { data : "fullName", },
+               { data : "address", },
+               { data : "organizationName", },
+               {
+                   data : "updatedAt",
+                   render : function(data, type, row) {
+                       return null == data ? "" 
+                          : '<span title="<%-__('global.lastUpdated')%> ' + moment(data).format('YYYY/MM/DD HH:mm') + '">' + moment(data).fromNow() + '</span>';
+                   }
+               },
+               {
+                   orderable : false,
+                   data: null,
+                   render : renderActionColumn,
+               },
+        ]
+        ,order : []
+    });
+    pressSearchButton();
+});
+function renderActionColumn(data, type, row) {
+    var html =  '<span class="has-notifi">';
+        html += '<a class="op-ux-icon-table" onclick="pressDetailIcon(' + data.customerId + ');" href="javascript:void(0);">';
+        html += "<%-__("common.view")%>";
+        html += '</a>';
+        html += '<span class="notifi">' + data.countInvoice + '</span>';
+        html += '</span>';
+        html += '<a class="op-ux-icon-table" onclick="pressEditIcon(' + data.customerId + ');" href="javascript:void(0);">' + "<%-__('common.edit')%></a>";
+        html += '<a class="op-ux-icon-table" onclick="window.open(\'/invoice/form/?customerId=' + data.customerId + '\', \'_blank\', \'' + "<%=__('config.invoiceFormatPopup')%>" + '\');" href="javascript:void(0);">' + "<%-__('common.invoice')%></a>";
+        if(data.countInvoice == 0) {
+            html += '<a class="op-ux-icon-table" onclick="pressDeleteIcon(' + data.customerId + ');" href="javascript:void(0);">' + "<%-__('common.delete')%></a>";
+        }
+        return html;
+}
+</script>

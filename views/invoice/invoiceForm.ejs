@@ -1,0 +1,172 @@
+<%if(typeof customer === 'undefined') {
+    customer = {};
+}%>
+<%if(typeof organization === 'undefined') {
+    organization = {};
+}%>
+<%if(typeof invoice === 'undefined') {
+    invoice = {};
+}%>
+<div id="invoice-body"
+    ng-app="invoiceApp"
+    ng-controller="InvoiceController"
+>
+    <ul class="nav nav-tabs hideOnPrint invoiceWrapper" style="margin-bottom: 10px;">
+        <li class="active"><a data-toggle="tab" href="#invoiceOptical" onclick="onClickTab();">Kính mắt</a></li>
+        <li><a data-toggle="tab" href="#invoiceOther" onclick="onClickTab();">Phổ biến</a></li>
+    </ul>
+    <div class="tab-content">
+        <div id="invoiceOptical" class="tab-pane fade in active">
+            <%include invoiceOptical%>
+        </div>
+        <div id="invoiceOther" class="tab-pane fade">
+            <%include invoiceOther%>
+        </div>
+    </div>
+    <input type='hidden' name='_csrf' value='<%- _csrf %>'>
+</div>
+<%- include ../common/saveResultDisplay%>
+<script>
+function onClickTab() {
+    setTimeout(function() {
+        autosize.update(document.getElementById('noteOptical'));
+        autosize.update(document.getElementById('noteOther'));
+    }, 600)
+}
+$(function() {
+    autosize(document.getElementById('noteOptical'));
+    autosize(document.getElementById('noteOther'));
+})
+</script>
+<script type="text/javascript">
+var invoiceApp = angular.module('invoiceApp', ['ngAnimate', 'ngSanitize', 'ui.utils.masks' ]);
+invoiceApp.controller('InvoiceController', function( $scope, $http, $filter, $compile, $sce) {
+    $scope.customer = <%-JSON.stringify(customer)%>;
+    $scope.organization = <%-JSON.stringify(organization)%>;
+    $scope.invoice = <%-JSON.stringify(invoice)%>;
+    $scope.cartList = [];
+    if($scope.invoice.cartList) {
+        $scope.cartList = $scope.invoice.cartList;
+    } else {
+        var numberOfRowOptical = 3;
+        for(var i = 1; i <= numberOfRowOptical; i++) {
+            var cartItem = {stt: i};
+            $scope.cartList.push(cartItem);
+        }
+    }
+    $scope.noteList = [{message: '- Kiểm tra lại sau 06 tháng. \n- Khi tái khám nhớ mang theo phiếu này'}];
+    $scope.selectNote = function(index) {
+        var message = $scope.noteList[index].message;
+        $scope.invoice.note = message;
+        onClickTab();
+    }
+    $scope.addRow = function() {
+        var cartItem = {stt: $scope.cartList.length + 1};
+        $scope.cartList.push(cartItem);
+    }
+    $scope.removeRow = function($index) {
+        $scope.cartList.splice($index, 1);
+    }
+    $scope.intoMoney = function(cart) {
+        try {
+            if(cart.number && cart.unitPrice) {
+                return parseFloat(cart.number) * parseFloat(cart.unitPrice);
+            }
+            return "";
+        } catch(e) {
+            console.log(e)
+            return "";
+        }
+        return "";
+    }
+    $scope.totalMoney = function() {
+        var total = 0;
+        for(var i = 0; i < $scope.cartList.length; i++) {
+            var cart = $scope.cartList[i];
+            if(cart.number && cart.unitPrice) {
+                total += parseFloat(cart.number) * parseFloat(cart.unitPrice);
+            }
+        }
+        return total;
+    }
+    $scope.totalPayMoney = function() {
+        var total = $scope.totalMoney();
+        if($scope.invoice.totalDiscount) {
+            total -= parseFloat($scope.invoice.totalDiscount);
+        }
+        return total;
+    }
+    $scope.readNumber = function() {
+        var total = $scope.totalPayMoney();
+        if(total > 0) {
+            return readNumber(total) + " đồng."
+        }
+        return "";
+    }
+    $scope.percent = function() {
+        var total = $scope.totalMoney();
+        var percent = '0%';
+        if($scope.invoice.totalDiscount) {
+            percent = Math.round((parseFloat($scope.invoice.totalDiscount)/$scope.totalMoney()) * 100) + '%';
+        }
+        return percent;
+    }
+    $scope.toLineBreak = function(string) {
+        return string.replace(/\n/g, "<br />");
+    }
+    /**Bat dau xu ly luu tru du lieu*/
+    var defaultPaymentMethod = "Tiền mặt";
+    $scope.dataOptical = {paymentMethod: defaultPaymentMethod};
+    if($scope.invoice.dataOptical) {
+        $scope.dataOptical = $scope.invoice.dataOptical;
+    } else {
+        $scope.dataOptical = {paymentMethod: defaultPaymentMethod};
+    }
+}).filter('number2Decimal', [
+     function() { // should be altered to suit your needs
+         return function(input) {
+             return (input)? input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "";
+     };
+}]);
+function pressBackButton() {
+    window.close();
+}
+function pressExportInvoice() {
+    if(confirmAction()) {
+        var scope = angular.element(document.getElementById('invoice-body')).scope();
+        var areaId = 'saveResultDisplayTag';
+        var actionUrl = '/invoice/save-invoice?opt=0' + d2tGetToken();
+        var formData = {
+                dataOptical: scope.dataOptical, 
+                cartList: scope.cartList, 
+                customer: scope.customer,
+                totalPrice: scope.totalMoney(),
+                totalDiscount: scope.invoice.totalDiscount,
+                note: scope.invoice.note,
+                trueTotalPrice: scope.totalPayMoney() };
+        if(scope.invoice.invoiceId) {
+            formData.invoiceId = scope.invoice.invoiceId;
+        }
+        d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSaveInvoice");
+    }
+}
+function callbackAfterSaveInvoice(returnCode, extraValue, invoice) {
+    var scope = angular.element(document.getElementById('invoice-body')).scope();
+    if(!scope.invoice.invoiceId) {
+        try {
+            if(typeof invoice === 'object') {
+                scope.invoice = invoice;
+                scope.$apply();
+            }
+            var newUrl = '/invoice/form/?customerId=' + scope.customer.customer_id;
+            newUrl += '&invoiceId=' + scope.invoice.invoiceId;
+            var newTitle = "<%=siteTitle%>";
+            window.history.replaceState({}, newTitle, newUrl);
+            $('#print1').trigger('click');
+        } catch(e) {
+            console.log(e)
+        }
+    }
+    //window.close();
+}
+</script>

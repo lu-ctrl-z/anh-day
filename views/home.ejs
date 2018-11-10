@@ -1,0 +1,247 @@
+<script src="/js/Chart.bundle.js"></script>
+<style type="text/css">
+.monthName {
+    overflow: hidden;
+}
+.monthsList {
+    top: 0px;
+    height: 28px;
+    margin: 0px;
+    padding: 0px;
+    display: table;
+    transition: all 0.66s ease 0s;
+}
+.monthsList > li {
+    display: table-cell;
+    text-align: center;
+    vertical-align: middle;
+}
+.monthsList > li.active {
+    background-color: #3b5998;
+    color: #fff;
+}
+.month-item {
+    border-right: 1px solid #e8e8e8;
+}
+.panel-info {
+    width: 270px;
+}
+</style>
+<div id="content-body" ng-app="homeApp" ng-controller="HomeController">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <strong class="h-i">
+                <span class="glyphicons glyphicons-signal"></span>
+                <span>Biểu đồ doanh số tháng {{selectedMonth}}</span>
+            </strong>
+            <div style="display: inline-block;" class="dropdown">
+                <a style="font-size: 16px;" title="thêm" href="javascript:void(0);" data-open-panel="#customize-panel" ng-click="processGoToMonth('#elem1');">
+                    <span class="glyphicons glyphicons-option-horizontal"></span>
+                </a>&nbsp;
+                <div class="customize-panel-container">
+                    <div class="customize-panel panel-info" id="customize-panel">
+                        <div class="customize-panel-anchor"></div>
+                        <div class="customize-panel-inner-wrapper">
+                            <div class="customize-title">
+                                Doanh số {{selectedMonth}}: <span class="color-success">{{info.totalPrice | number2Decimal}} VNĐ</span>
+                            </div>
+                            <div class="customize-panel-item">
+                                Số đơn hàng: <span class="color-success">{{info.countInvoice}}</span>
+                            </div>
+                            <div class="customize-panel-item">
+                                Thực nhận: <span class="color-success">{{info.trueTotalPrice | number2Decimal}} VNĐ</span>
+                            </div>
+                            <div class="customize-panel-item">
+                                Giảm trừ: <span class="color-success">{{info.totalDiscount | number2Decimal}} VNĐ</span>
+                            </div>
+                            <div class="customize-panel-item">
+                                <div class="_table w100">
+                                    <div class="td">
+                                        <button id="button-show-menu" class="op-ux-button" type="button" ng-click="goToPrev('#elem1');">
+                                           <span class="glyphicons glyphicons-chevron-left"></span>
+                                       </button>
+                                    </div>
+                                    <div class="td free-col monthName rel" id="elem1">
+                                        <ul class="abs monthsList">
+                                            <li class="month-item" ng-class="{active: selectedMonth==month}" ng-repeat="month in monthsList"><div style="width: 172px;" align="center">Tháng {{month}}</div></li>
+                                        </ul>
+                                    </div>
+                                    <div class="td">
+                                        <button id="button-show-menu" class="op-ux-button" type="button" ng-click="goToNext('#elem1');">
+                                           <span class="glyphicons glyphicons-chevron-right"></span>
+                                       </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-body" id="resultDisplayRevenueChart">
+        </div>
+    </div>
+    
+    <div class="panel panel-default">
+        <div class="has-area-button panel-heading">
+            <strong class="h-i">
+                <span class="glyphicons glyphicons-signal"></span>
+                <span>Biểu đồ thống kê hàng tồn: Quý {{selectedArchiveYear}}</span>
+            </strong>
+            <div style="display: inline-block;" class="dropdown">
+                <a style="font-size: 16px;" title="thêm" href="javascript:void(0);" data-open-panel="#customize-panel2" ng-click="processGoToMonth('#elem2');">
+                    <span class="glyphicons glyphicons-option-horizontal"></span>
+                </a>&nbsp;
+                <div class="customize-panel-container">
+                    <div class="customize-panel panel-info" id="customize-panel2">
+                        <div class="customize-panel-anchor"></div>
+                        <div class="customize-panel-inner-wrapper">
+                            <div class="customize-title" style="font-size: 13px;">
+                                Kỳ thống kê từ {{infoArchive.fromDate}}-{{infoArchive.toDate}}
+                            </div>
+                            <div class="customize-panel-item">
+                                Số dư đầu kỳ: <span class="color-success">{{(infoArchive.beginArchive || 0) | number2Decimal}}</span>
+                            </div>
+                            <div class="customize-panel-item">
+                                Số dư cuối kỳ: <span class="color-success">{{(infoArchive.endArchive || 0) | number2Decimal}}</span>
+                            </div>
+                            <div class="customize-panel-item">
+                                Tổng hàng xuất trong kỳ: <span class="color-success">{{(infoArchive.totalSold || 0) | number2Decimal}}</span>
+                            </div>
+                            <div class="customize-panel-item">
+                                <div class="_table w100">
+                                    <div class="td">
+                                        <button id="button-show-menu" class="op-ux-button" type="button" ng-click="goToPrev('#elem2');">
+                                           <span class="glyphicons glyphicons-chevron-left"></span>
+                                       </button>
+                                    </div>
+                                    <div class="td free-col monthName rel" id="elem2">
+                                        <ul class="abs monthsList">
+                                            <li class="month-item" ng-class="{active: selectedArchiveYear==year}" ng-repeat="year in yearsList"><div style="width: 172px;" align="center">Quý {{year}}</div></li>
+                                        </ul>
+                                    </div>
+                                    <div class="td">
+                                        <button id="button-show-menu" class="op-ux-button" type="button" ng-click="goToNext('#elem2');">
+                                           <span class="glyphicons glyphicons-chevron-right"></span>
+                                       </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="heading-area-button">
+                <select class="op-ux-input form-control" name="sysCatTypeId" ng-model="sysCatTypeId" id="sysCatTypeId" ng-change="getArchiveChart();">
+                    <option value=""><%-__('select.allCbo')%></option>
+                    <option value="{{sysCatType.sysCatTypeId}}" ng-repeat="sysCatType in lstSysCatType">{{sysCatType.name}}</option>
+                </select>
+            </div>
+        </div>
+        <div class="panel-body" id="resultDisplayArchiveChart">
+            <canvas id="archiveChart" height="333" width="1000"></canvas>
+        </div>
+    </div>
+<script>
+var homeApp = angular.module('homeApp', [ 'ngAnimate', 'ngSanitize', 'ngStorage' ]);
+homeApp.controller('HomeController', function($scope, $http, $localStorage, $filter, $compile) {
+    $scope.info = {};
+    $scope.infoArchive = {};
+    $scope.monthsList = [];
+    $scope.yearsList = [];
+    $scope.selectedMonth = moment().format('MM/YYYY');
+    $scope.selectedArchiveYear = moment().format('Q/YYYY');
+    $scope.yearsList.push($scope.selectedArchiveYear);
+    $scope.monthsList.push($scope.selectedMonth);
+    //Lay bieu do doanh so
+    $scope.getRevenueChart = function() {
+        var areaId = 'resultDisplayRevenueChart';
+        var actionUrl = '/report?type=1';
+        var formData = {};
+        var selectedMonth = moment('01/' + $scope.selectedMonth, 'DD/MM/YYYY');
+        formData.fromDate = selectedMonth.format('DD/MM/YYYY');
+        formData.toDate = selectedMonth.endOf('month').format('DD/MM/YYYY');
+        d2tDeferredAjax(areaId, actionUrl, formData, "GET").done(function(data) {
+        });
+    }
+    //Lay bieu do ton kho
+    $scope.getArchiveChart = function() {
+        var areaId = 'resultDisplayArchiveChart';
+        var actionUrl = '/report?type=2';
+        var formData = {};
+        var selectedYear = moment($scope.selectedArchiveYear, 'Q/YYYY');
+        formData.fromDate = selectedYear.startOf('quarter').format('DD/MM/YYYY');
+        formData.toDate = selectedYear.endOf('quarter').format('DD/MM/YYYY');
+        formData.sysCatTypeId = $('#sysCatTypeId').val();
+        d2tDeferredAjax(areaId, actionUrl, formData, "GET").done(function(data) {
+        });
+    }
+    $scope.getRevenueChart();
+    $scope.getArchiveChart();
+    $scope.goToPrev = function(el) {
+        if(el == '#elem1') {
+            var currentMonth = moment('01/' + $scope.selectedMonth, 'DD/MM/YYYY');
+            $scope.selectedMonth = currentMonth.add(-1, 'month').format('MM/YYYY');
+            if($scope.monthsList.indexOf($scope.selectedMonth) < 0) {
+                $scope.monthsList.unshift($scope.selectedMonth);
+            }
+            $scope.getRevenueChart();
+        } else {
+            var currentYear = moment($scope.selectedArchiveYear, 'Q/YYYY');
+            $scope.selectedArchiveYear = currentYear.add(-1, 'quarter').format('Q/YYYY');
+            if($scope.yearsList.indexOf($scope.selectedArchiveYear) < 0) {
+                $scope.yearsList.unshift($scope.selectedArchiveYear);
+            }
+            $scope.getArchiveChart();
+        }
+        $scope.processGoToMonth(el);
+    }
+    $scope.goToNext = function(el) {
+        if(el == '#elem1') {
+            var currentMonth = moment('01/' + $scope.selectedMonth, 'DD/MM/YYYY');
+            $scope.selectedMonth = currentMonth.add(+1, 'month').format('MM/YYYY');
+            if($scope.monthsList.indexOf($scope.selectedMonth) < 0) {
+                $scope.monthsList.push($scope.selectedMonth);
+            }
+            $scope.getRevenueChart();
+        } else {
+            var currentMonth = moment($scope.selectedArchiveYear, 'Q/YYYY');
+            $scope.selectedArchiveYear = currentMonth.add(+1, 'quarter').format('Q/YYYY');
+            if($scope.yearsList.indexOf($scope.selectedArchiveYear) < 0) {
+                $scope.yearsList.push($scope.selectedArchiveYear);
+            }
+            $scope.getArchiveChart();
+        }
+        $scope.processGoToMonth(el);
+    }
+    $scope.processGoToMonth = function(el) {
+        setTimeout(function() {
+            var obj = $(el).find('.monthsList > .active');
+            var childPos = obj.offset();
+            var parentPos = obj.parent().offset();
+            var childOffset = {
+                top: childPos.top - parentPos.top,
+                left: childPos.left - parentPos.left
+            }
+            obj.parent().css('margin-left', -childOffset.left + 'px');
+        }, 333);
+    }
+    $scope.lstSysCatType = [];
+    //lay danh sach loai mat kinh
+    $scope.loadSysCatType = function() {
+        var actionUrl = "/optical/list-optical-type";
+        d2tDeferredAjax("", actionUrl, "", "GET").done(function(data) {
+            $scope.lstSysCatType = data;
+            $scope.$apply();
+        });
+    }
+    $scope.loadSysCatType();
+}).filter('number2Decimal', filterNumber2Decimal);
+if (!angular.element(document.getElementById('content-body')).scope()) {
+    angular.bootstrap(document.getElementById("content-body"), [ 'homeApp' ]);
+}
+function getScopeCtl() {
+    return angular.element(document.getElementById('content-body')).scope();
+}
+</script>
+</div>

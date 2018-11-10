@@ -1,0 +1,326 @@
+<style type="text/css">
+.btn-edit-syscat {
+    position: absolute;
+    top: 3px;
+    right: 2px;
+}
+.btn-edit-syscat > .glyphicons {
+    font-size: 11px !important;
+    color: rgb(174, 175, 179);
+}
+.sysCatType td {
+    position: relative;
+}
+.progress {
+    background-color: #bc2328;
+}
+</style>
+
+<div id="content-body"
+    ng-app="opticalApp"
+    ng-controller="OpticalController"
+>
+<div class="row fullRow">
+    <div class="col-sm-3 no-padding-left">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="h-i">
+                    <%-__('optical.opticalSysCatType')%>
+                </strong>
+            </div>
+            <div class="panel-body no-padding" ng-cloak>
+                <ol class="ol-number">
+                    <li ng-repeat="sysCatType in lstSysCatType" class="rel border-bottom dropdown">
+                        <a href="javascript:void(0);" title="{{sysCatType.name}} ({{sysCatType.countSysCat}})" ng-click="loadDetailByType(sysCatType);" class="catName" style="padding-right:35px;">
+                        {{$index+1}}. {{sysCatType.name}} ({{sysCatType.countSysCat}})
+                        </a>
+                        <a class="abs more" href="javascript:void(0);" data-open-panel="#customize-panel{{$index+1}}">
+                            <span class="glyphicons glyphicons-option-horizontal" ng-if="isActive != sysCatType.sysCatTypeId"></span>
+                            <span class="glyphicons glyphicons-ok" ng-if="isActive == sysCatType.sysCatTypeId" style="color: #bc2328;"></span>
+                        </a>
+                        <div class="customize-panel-container">
+                            <div class="customize-panel" id="customize-panel{{$index+1}}">
+                                <div class="customize-panel-anchor"></div>
+                                <div class="customize-panel-inner-wrapper">
+                                    <div class="customize-title">
+                                        Danh mục: {{sysCatType.name}}
+                                    </div>
+                                    <div class="customize-panel-item">
+                                        <input type="text" class="op-ux-input form-control validate[required,maxSize[255]]" ng-model="sysCatType.newName" ng-value="sysCatType.name">
+                                    </div>
+                                    <div ng-if="sysCatType.countSysCat > 0" class="customize-panel-item">
+                                        Danh mục này hiện có {{sysCatType.countSysCat}} mặt hàng, {{sysCatType.total || 0}} sản phẩm.
+                                        <div class="progress" ng-if="sysCatType.warningValue > 0" title="Mức độ cảnh báo">
+	                                        <div class="progress-bar" role="progressbar" aria-valuenow="70"
+	                                        aria-valuemin="0" aria-valuemax="100" style="width:{{100*((sysCatType.warningValue - sysCatType.warningCount)/sysCatType.warningValue) | number:0}}%">
+	                                          {{100*((sysCatType.warningValue - sysCatType.warningCount)/sysCatType.warningValue) | number:0}}%
+	                                        </div>
+	                                    </div>
+                                    </div>
+                                    <div class="customize-panel-item">
+                                        <button class="btn btn-success" ng-disabled="sysCatType.newName==''" ng-click="updateSysCatType(sysCatType)">Cập nhật</button>
+                                        <button ng-if="sysCatType.countSysCat == 0" class="btn btn-danger" ng-click="deleteSysCatType(sysCatType)">Xóa</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ol>
+                 <table class="table tableLayoutFixed table-striped sysCatType">
+                     <tfoot>
+                         <tr>
+                             <th class="size-1 stt alignCenter">
+                                <button ng-click="showAdd = !showAdd;" class="op-ux-button transitor-button" ng-class="{in: showAdd}"><span class="glyphicons glyphicons-plus"></span></button>
+                             </th>
+                             <th class="alignCenter" colspan="2">
+                                <form id="frmSysCatType">
+                                <input type='hidden' name='_csrf' value='<%- _csrf %>'>
+                                <div class="transitor-input" style="height: 28px;" ng-class="{in: showAdd}">
+                                    <div class="input-group">
+                                      <input title="{{nameAdd}}" name="name" type="text" ng-model="nameAdd" placeholder="Nhập tên danh mục" maxlength="255" class="form-control op-ux-input validate[required,maxSize[255]]" style="z-index:1">
+                                      <label style="cursor: pointer; display:table-cell !important;" class="input-group-addon btn-info" title="<%=__('global.save')%>">
+                                          <button type="submit" style="position:absolute; visibility: hidden;" ng-click="addNewSysCatType();"></button>
+                                          <i class="glyphicons glyphicons-ok fff"></i>
+                                      </label>
+                                    </div>
+                                </div>
+                                </form>
+                             </th>
+                         </tr>
+                     </tfoot>
+                 </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-9 no-padding-left no-padding-right" id="detailArea" ng-show="isActive">
+         <div class="panel panel-default">
+            <div class="panel-heading">
+                <strong class="h-i">
+                    <%-__('optical.opticalSysCat')%> danh mục: {{sysCatType.name}}
+                </strong>
+            </div>
+            <div class="panel-body border-bottom" id="formArea">
+            </div>
+            <div class="panel-body">
+                <%include ../optical/opticalList%>
+            </div>
+        </div>
+    </div>
+</div>
+<%- include ../common/saveResultDisplay%>
+</div>
+<script type="text/javascript">
+var opticalApp = angular.module('opticalApp', ['ngAnimate', 'ngSanitize', 'ngStorage', 'ui.utils.masks' ]);
+opticalApp.controller('OpticalController', function( $scope, $http, $localStorage, $filter, $compile) {
+    $scope.lstSysCatType = [];
+    $scope.sysCatType = {};
+    //lay danh sach loai mat kinh
+    $scope.loadSysCatType = function() {
+        var actionUrl = "/optical/list-optical-type";
+        d2tDeferredAjax("", actionUrl, "", "GET").done(function(data) {
+            $scope.lstSysCatType = data;
+            $scope.$apply();
+        });
+    }
+    $scope.updateSysCatType = function(sysCatType) {
+        if(!sysCatType.newName) return;
+        var areaId = 'saveResultDisplayTag';
+        var actionUrl = '/optical/add-sys-cat-type?' + d2tGetToken();
+        var formData = "&name=" + sysCatType.newName;
+        formData += "&sysCatTypeId=" + sysCatType.sysCatTypeId;
+        d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSaveType");
+    }
+    $scope.deleteSysCatType = function(sysCatType) {
+        if(confirmDelete()) {
+            var areaId = 'saveResultDisplayTag';
+            var actionUrl = '/optical/delete-sys-cat-type?' + d2tGetToken();
+            var formData = "&sysCatTypeId=" + sysCatType.sysCatTypeId;
+            d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSaveType");
+        }
+    }
+    $scope.loadSysCatType();
+    $scope.addNewSysCatType = function() {
+        if($('#frmSysCatType').validationEngine('validate')) {
+            var areaId = 'saveResultDisplayTag';
+            var actionUrl = '/optical/add-sys-cat-type?' + d2tGetToken();
+            var formData = getFormAsString('frmSysCatType');
+            d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSaveType");
+        }
+    }
+    $scope.loadDetailByType = function(sysCatType) {
+        $scope.sysCatType = sysCatType;
+        if($scope.isActive && $scope.isActive == sysCatType.sysCatTypeId) return;
+        $scope.isActive = sysCatType.sysCatTypeId;
+        prepareSearch(sysCatType.sysCatTypeId);
+    }
+    $scope.compileAreaId = function(areaId) {
+        $compile($('#'+areaId).contents())($scope);
+    }
+    function initStore() {
+        var defaultTo = {}; defaultTo[STG_PRINT_NAME] = []; defaultTo[STG_PRINT_CURRENT] = '';
+        $scope.$storage = $localStorage.$default(defaultTo);
+    }
+    $scope.add2PrintDocument = function(code) {
+        var actionUrl = '/product/load-by-code?';
+        d2tDeferredAjax('', actionUrl, 'code=' + trim(code), "GET").done(function(data) {
+            if(data.length > 0 && (data[0].code == code )) {
+                add2Store(data[0]);
+            }
+        });
+    }
+    function add2Store(data) {
+        initStore();
+        data.quantity = 1;
+        data.tem1 = !0;
+        data.tem2 = !0;
+        $scope.$storage[STG_PRINT_NAME].unshift(data);
+        $scope.$storage[STG_PRINT_CURRENT] = data.code;
+        //d2tUpdateMessage("2", "MSP " + code + " được đăng ký in tem thành công.", '');
+        $scope.$storage.$apply();
+        angular.element(document.getElementById('print-container')).scope().getPendingCount();
+    }
+}).directive('jqSpinner1', jqSpinner1);
+function jqSpinner1() {
+    return {
+        restrict: 'A',
+        require: 'ngModel',
+        link: function (scope, element, attrs, c) {
+            element.spinner({
+                spin: function (event, ui) {
+                    c.$setViewValue(ui.value);
+                },
+                min: 0, max: 999, step: 1
+            });
+        }
+    };
+};
+function prepareSearch(sysCatTypeId) {
+    var areaId = 'formArea';
+    var actionUrl = '/optical/prepare-search?sysCatTypeId=' + sysCatTypeId;
+    d2tDeferredAjax(areaId, actionUrl, "", "GET").done(function(data) {
+        opticalTbl.ajax.reload();
+        angular.element(document.getElementById('content-body')).scope().compileAreaId(areaId);
+    });
+}
+function pressSearchButton() {
+    opticalTbl.ajax.reload();
+}
+function pressSaveButton() {
+    if($('#frmSave').validationEngine('validate') && confirmSave()) {
+        var areaId = 'saveResultDisplayTag';
+        var actionUrl = '/optical/save-sys-cat?';
+        var formData = getFormAsObject('frmSave');
+        var scope = angular.element(document.getElementById('content-body')).scope();
+        formData.price = scope.price;
+        formData.cost = scope.cost;
+        d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSave");
+    }
+}
+function callbackAfterSave() {
+    $('#name').val('');
+    /* $('#price').val(''); */
+    /* $('#cost').val(''); */
+    //$('#unit').val('');
+    $('#code').val('');
+    $('#description').val('');
+    $('#sysCatId').val('');
+    pressSearchButton();
+}
+function callbackAfterSaveType(returnCode, extraValue, sysCatType) {
+    var scope = angular.element(document.getElementById('content-body')).scope();
+    scope.loadSysCatType();
+    $('#customize-overlay').trigger('click');
+}
+$(document).ready( function() {
+    if (!angular.element(document.getElementById('content-body')).scope()) {
+        angular.bootstrap(document.getElementById("content-body"), [ 'opticalApp' ]);
+    }
+});
+$(document).ready( function() {
+    $.fn.dataTable.ext.legacy.ajax = true;
+    opticalTbl = $('#opticalTbl').DataTable({
+        processing : true,
+        serverSide : true,
+        deferLoading: 90,
+        ajax : {
+            url : '/optical/load-detail?',
+            type : 'GET',
+            dataSrc : 'data',
+            data : function (data) {
+                var scope = angular.element(document.getElementById('content-body')).scope();
+                var formData = getFromAsObject('frmSave');
+                d2tCopyProperty(data, formData);
+                return data;
+            }
+        },
+        columns : [
+               {
+                   searchable : false,
+                   orderable : false,
+                   data : null,
+                   targets : 0,
+                   className : "alignCenter",
+                   render : function(data, type, row, cell) {
+                       var info = opticalTbl.page.info();
+                       var stt = 1 + (info.page * info.length) + cell.row;
+                       return stt;
+                   }
+               },
+               { data : "code", className : "alignCenter"},
+               { data : "name", render: escapeHtml},
+               { data : "price", className : "alignRight", render: formatMoney},
+               { data : "unit", className : "alignCenter", render: escapeHtml},
+               { data : null, className : "alignRight", orderable : false, searchable : false
+                 , render : function(data, type, row) {
+                      if(data.warningValue != null && data.warningValue > 0) {
+                          return data.totalProduct + " / <span style='color: #bc2328'>" + data.warningValue + "</span>";
+                      } else {
+                          return data.totalProduct;
+                      }
+                   }
+               },
+               {
+                   orderable : false,
+                   data: null,
+                   render : renderActionColumn,
+               },
+        ]
+        ,order : []
+    });
+});
+function renderActionColumn(data, type, row) {
+    var html = '';
+        html += '<a class="op-ux-icon-table" onclick="pressAddPrinterIcon(\'' + data.code + '\');" href="javascript:void(0);">';
+        html += "<%-__("common.print")%>";
+        html += '</a>';
+        html += '<a class="op-ux-icon-table" onclick="pressEditIcon(' + data.sysCatId + ');" href="javascript:void(0);">';
+        html += "<%-__("common.edit")%>";
+        html += '</a>';
+        if(data.totalProduct == 0) {
+            html += '<a class="op-ux-icon-table" onclick="pressDeleteIcon(' + data.sysCatId + ');" href="javascript:void(0);">' + "<%-__('common.delete')%></a>";
+        }
+        return html;
+}
+function pressEditIcon(sysCatId) {
+    var areaId = 'formArea';
+    var actionUrl = '/optical/prepare-update?sysCatId=' + sysCatId;
+    d2tDeferredAjax(areaId, actionUrl, "", "GET").done(function(data) {
+        var scope = angular.element(document.getElementById('content-body')).scope();
+        scope.price = $(data).find('#price').val();
+        scope.cost = $(data).find('#cost').val();
+        scope.warningValue = $(data).find('#warningValue').val();
+        scope.compileAreaId(areaId);
+    });
+}
+function pressDeleteIcon(sysCatId) {
+    if(confirmDelete()) {
+        var areaId = 'saveResultDisplayTag';
+        var actionUrl = '/optical/delete?' + d2tGetToken();
+        var formData = "&sysCatId=" + sysCatId;
+        d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSave");
+    }
+}
+function pressAddPrinterIcon(code) {
+    angular.element(document.getElementById('content-body')).scope().add2PrintDocument(code);
+}
+</script>

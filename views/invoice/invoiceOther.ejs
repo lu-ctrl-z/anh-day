@@ -1,0 +1,97 @@
+<div class="btn-area btn-right-area hideOnPrint invoiceWrapper">
+    <button type="button" onclick="pressBackButton();" class="btn btn-danger cmd-shortcut-form" data-form-shortcut-key="ESC"><%-__('button.back')%> (ESC)</button>
+    <button id="print2" onclick="window.print();" class="btn btn-info cmd-shortcut-form" type="button" data-form-shortcut-key="Ctrl+P">In hóa đơn (Ctrl+P)</button>
+</div>
+<div class="invoice">
+    <table class="invoice-head">
+        <tr>
+            <th rowspan="4" style="padding-right: 5px;">
+                <img ng-src="{{organization.imagePath}}" style="height: 50px;">
+            </th>
+            <th>Đơn vị bán hàng</th>
+            <td class="uc" colspan="3">: <strong style="text-transform: uppercase;">{{organization.organizationName}}</strong></td>
+        </tr>
+        <tr ng-if="organization.taxNumber">
+            <th>Mã số thuế</th>
+            <td colspan="3">:</td>
+        </tr>
+        <tr>
+            <th>Địa chỉ</th>
+            <td colspan="3">: {{organization.address}}</td>
+        </tr>
+        <tr>
+            <th>Điện thoại</th>
+            <td class="tdic" colspan="3">: {{organization.phoneNumber}} <hr class="bbottom"/></td>
+        </tr>
+    </table>
+    <hr class="border"/>
+    <div class="invoice-descript">
+        <h4 style="font-weight: bold;">BIÊN NHẬN - BẢO HÀNH</h4>
+        <div>Liên 2: Giao cho người mua</div>
+        <div><i><%=sails.moment().format('[Ngày] DD [tháng] MM [năm] YYYY')%></i></div>
+        <div class="version">
+            <p>Mẫu số: <b>01GTKT3/001</b></p>
+            <p>Ký hiệu: <b>KL/13P</b></p>
+            <p>Số: <b>{{invoice.invoiceCode || '0000000000'}}</b></p>
+        </div>
+    </div>
+    <table class="invoice-mid">
+        <tr>
+            <th>Họ tên người mua hàng:</th>
+            <td>
+                <input type="text" ng-model="customer.full_name" name="fullName" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+        </tr>
+    </table>
+    <table class="invoice-mid">
+        <tr>
+            <th>Địa chỉ:</th>
+            <td>
+                <input type="text" ng-model="customer.address" name="address" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+        </tr>
+    </table>
+    <table class="invoice-mid">
+        <tr>
+            <th>Hình thức thanh toán:</th>
+            <td style="width: 35%;">
+                <input type="text" value="Tiền mặt" name="fullName" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+            <th>Số tài khoản:</th>
+            <td style="width: 35%;">
+                <input type="text" value="" name="fullName" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+        </tr>
+    </table>
+    <%include invoiceMainTable%>
+    <table class="invoice-bottom" style="margin-top:5px;">
+        <tr>
+            <th style="vertical-align: top;">
+                <div class="dropup">
+                    <a href="javascript:void(0);" data-toggle="dropdown"><b>Ghi chú:</b></a>
+                    <ul class="dropdown-menu hideOnPrint" role="menu" aria-labelledby="menu1">
+                      <li role="presentation" class="contentTextarea" ng-repeat="noteItem in noteList">
+                        <a role="menuitem" ng-click="selectNote($index)" href="javascript:void(0);" ng-bind-html="toLineBreak(noteItem.message)"></a>
+                      </li>
+                      <li role="presentation" class="divider"></li>
+                      <li role="presentation">
+                        <a role="menuitem" href="javascript:void(0);">...</a>
+                      </li>
+                    </ul>
+                </div> 
+            </th>
+            <td class="w100"><textarea ng-model="invoice.note" id="noteOther" class="op-ux-input form-control opacity" style="font-weight: normal; font-style: italic;"></textarea></td>
+        </tr>
+    </table>
+    <table class="invoice-bottom" style="margin-top:5px;">
+        <tr>
+            <td align="center"><b>Người mua hàng</b> <br /> (Ký và ghi rõ họ tên)</td>
+            <th></th>
+            <td align="center"><b>Người bán hàng</b> <br /> (Ký, đóng dấu và ghi rõ họ tên)</td>
+        </tr>
+    </table>
+</div>

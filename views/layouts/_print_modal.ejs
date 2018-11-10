@@ -1,0 +1,224 @@
+<div id="print-container" ng-app="printApp" ng-controller="PrintController" class="modal fade printModal" style="display: none" >
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"
+                    aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <div class="print-template">
+                    Chọn mẫu in: 
+                    <button class="op-ux-button btn-success" ng-class="{selected: currentTemplate==1}" ng-click="setTemplate(1)" type="button" title="Kích thước 73mmx57mm">
+                        1
+                    </button>
+                    <button class="op-ux-button btn-success" ng-class="{selected: currentTemplate==2}" ng-click="setTemplate(2)" type="button" title="Kích thước 59mmx28mm">
+                        2
+                    </button>
+                    <button class="op-ux-button btn-success" ng-class="{selected: currentTemplate==3}" ng-click="setTemplate(3)" type="button" title="Kích thước 70mmx71mm">
+                        3
+                    </button>
+                </div>
+                
+                <!-- <h4 class="modal-title">Có {{pendingCount}} tem cần in </h4> -->
+            </div>
+            <div class="modal-body form-layout" style="overflow: visible;">
+               <div class="printLeft" style="width: 280px;">
+                    <iframe ng-if="isShow" id="iframePrint" name="iframePrint" src="" class="iframePrint"></iframe>
+               </div>
+               <div class="printRight form-horizontal">
+                    <div ng-if="currentItem.code">
+                    <table style="width: 100%;" class="table table-bordered tsmall">
+                        <tr>
+                            <td colspan="4" align="right">
+                                <button type="button" ng-click="clearStore()">Xóa tất cả các thiết lập in</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th style="width:80px;">Khổ in :</th>
+                            <td colspan="3">{{currentTemplate==1 ? '73mmx57mm' : currentTemplate==2 ? '59mmx28mm' : currentTemplate==3 ? '70mmx71mm' : ''}}</td>
+                        </tr>
+                        <tr>
+                            <th>Tên :</th>
+                            <td colspan="3">{{currentItem.name}}</td>
+                        </tr>
+                        <tr>
+                            <th>Danh mục :</th>
+                            <td colspan="3">{{currentItem.typeName}}</td>
+                        </tr>
+                        <tr>
+                            <th>MSP :</th>
+                            <td>{{currentItem.code}}</td>
+                            <th>Giá :</th>
+                            <td>{{currentItem.price | number2Decimal}} VNĐ</td>
+                        </tr>
+                        <tr ng-if="currentTemplate==3">
+                            <th>
+                                chọn loại tem:
+                            </th>
+                            <td colspan="3">
+                                <label class="d2t-label">
+                                    <input type="checkbox" ng-model="currentItem.tem1" /> <span>In tem 1</span>
+                                </label>
+                                <br />
+                                <label class="d2t-label">
+                                    <input type="checkbox" ng-model="currentItem.tem2" /> <span>In tem 2</span>
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>
+                                Tên hiển thị:
+                            </th>
+                            <td colspan="3">
+                                <select id="pCurrentTitle" ng-model="currentTitle" style="width: 100%;text-transform: uppercase; height: 19px;">
+                                    <option value="{{currentItem.temTitle1}}">{{currentItem.temTitle1}}</option>
+                                    <option value="{{currentItem.temTitle2}}">{{currentItem.temTitle2}}</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="4" align="right">
+                                <button type="button" ng-click="applyTem()">Áp dụng</button>
+                            </td>
+                        </tr>
+                    </table>
+                    </div>
+               </div>
+               <div class="clearfix"></div>
+            </div>
+            <div class="modal-footer">
+                <!-- <button class="btn btn-primary" type="button" onclick="processViewAllTem();"><span class="glyphicons glyphicons-print"></span> Xem tất cả</button> -->
+                <button class="btn btn-primary" type="button" onclick="processPrint();"><span class="glyphicons glyphicons-print"></span> In tem này</button>
+                <button class="btn btn-danger" type="button" ng-click="processDeleteTem();"><span class="glyphicons glyphicons-bin"></span> Xóa team này</button>
+                <button class="btn btn-danger" type="button" data-dismiss="modal"><span class="glyphicons glyphicons-remove"></span> Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+var printApp = angular.module('printApp', [ 'ngAnimate', 'ngSanitize', 'ngStorage' ]);
+printApp.controller('PrintController', function($scope, $http, $localStorage, $filter, $compile) {
+    $scope.currentTemplate;
+    $scope.isShow = 0;
+    $scope.pendingCount = 0;
+    $scope.currentItem = {};
+    $scope.currentTitle = "";
+    $scope.showModal = function() {
+        $('#print-container').modal('show');
+        $scope.isShow = 1;
+        $scope.$apply();
+        processReload();
+    }
+    $scope.setTemplate = function(tem) {
+        $scope.currentTemplate = tem;
+        $scope.$storage[STG_PRINT_CURRENT_TEMPLATE] = tem;
+        $scope.$storage.$apply();
+        processReload();
+    }
+    function initStore() {
+        var defaultTo = {};
+        defaultTo[STG_PRINT_NAME] = [];
+        defaultTo[STG_PRINT_CURRENT] = '';
+        defaultTo[STG_PRINT_CURRENT_TEMPLATE] = 1;
+        defaultTo[STG_PRINT_CURRENT_TITLE] = "";
+        $scope.$storage = $localStorage.$default(defaultTo);
+        $scope.currentTemplate = $scope.$storage[STG_PRINT_CURRENT_TEMPLATE];
+        $scope.currentTitle = $scope.$storage[STG_PRINT_CURRENT_TITLE];
+    }
+    function getCurrentItem() {
+        initStore();
+        $scope.currentItem = {};
+        if($scope.$storage[STG_PRINT_CURRENT] != '') {
+            for(var i = 0; i < $scope.$storage[STG_PRINT_NAME].length; i++) {
+                if($scope.$storage[STG_PRINT_CURRENT] == $scope.$storage[STG_PRINT_NAME][i]['code']) {
+                    $scope.currentItem =  $scope.$storage[STG_PRINT_NAME][i];
+                    break;
+                }
+            }
+        } else {
+            if($scope.$storage[STG_PRINT_NAME].length > 0) {
+                $scope.$storage[STG_PRINT_CURRENT] = $scope.$storage[STG_PRINT_NAME][0].code;
+                $scope.currentItem = $scope.$storage[STG_PRINT_NAME][0];
+            } else {
+                $scope.currentItem = {};
+            }
+        }
+        return $scope.currentItem;
+    }
+    $scope.applyTem = function() {
+        var code = $scope.currentItem.code;
+        $scope.$storage[STG_PRINT_CURRENT_TITLE] = $('#pCurrentTitle').val();
+        if(code != '') {
+            for(var i = 0; i < $scope.$storage[STG_PRINT_NAME].length; i++) {
+                if(code == $scope.$storage[STG_PRINT_NAME][i]['code']) {
+                    $scope.$storage[STG_PRINT_NAME][i] = $scope.currentItem;
+                    $scope.$storage.$apply();
+                    break;
+                }
+            }
+        }
+        processReload();
+    }
+    $scope.clearStore = function() {
+        if(confirm("Việc xóa thiết lập này sẽ xóa toàn bộ các thiết định liên quan tới in mã vạch\n bao gồm khởi động lại màn hình.\n bạn có muốn lưu thay đổi?")) {
+            var defaultTo = {};
+            $scope.$storage[STG_PRINT_NAME] = [];
+            $scope.$storage[STG_PRINT_CURRENT] = '';
+            $scope.$storage[STG_PRINT_CURRENT_TEMPLATE] = 1;
+            $scope.$storage[STG_PRINT_CURRENT_TITLE] = "";
+            $scope.$storage.$apply();
+            location.reload();
+        }
+    }
+    $scope.getPendingCount = function() {
+        initStore();
+        $scope.pendingCount = 0;
+        for(var i = 0; i < $scope.$storage[STG_PRINT_NAME].length; i++) {
+            $scope.pendingCount += $scope.$storage[STG_PRINT_NAME][i]['quantity'];
+        }
+        if($scope.pendingCount > 0) {
+            $('#peddingCount').show().html($scope.pendingCount);
+        } else {
+            $('#peddingCount').hide().html($scope.pendingCount);
+        }
+        getCurrentItem();
+        processReload();
+        return $scope.pendingCount;
+    }
+    $scope.getPendingCount();
+    $scope.processDeleteTem = function() {
+        initStore();
+        if($scope.$storage[STG_PRINT_CURRENT] != '') {
+            for(var i = 0; i < $scope.$storage[STG_PRINT_NAME].length; i++) {
+                if($scope.$storage[STG_PRINT_CURRENT] == $scope.$storage[STG_PRINT_NAME][i]['code']) {
+                    $scope.$storage[STG_PRINT_NAME].splice(i, 1);
+                    $scope.$storage.$apply();
+                    break;
+                }
+            }
+        }
+        $scope.$storage[STG_PRINT_CURRENT] = '';
+        $scope.$storage.$apply();
+        getCurrentItem();
+        $scope.getPendingCount();
+    }
+}).filter('number2Decimal', filterNumber2Decimal);
+var printDocument = function() {
+    angular.element(document.getElementById('print-container')).scope().showModal();
+}
+/* var processViewAllTem = function() {
+    window.open('/print.html?view=_blank', '_blank');
+} */
+var processPrint = function() {
+    window.frames["iframePrint"].focus();
+    window.frames["iframePrint"].print();
+}
+var processReload = function() {
+    var iframe = document.getElementById('iframePrint');
+    if(iframe) {
+        var currentTemplate = angular.element(document.getElementById('print-container')).scope().currentTemplate;
+        iframe.src = "/printset/index" + currentTemplate + ".html"
+    }
+}
+</script>
+

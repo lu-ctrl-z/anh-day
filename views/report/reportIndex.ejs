@@ -1,0 +1,163 @@
+<script src="/js/Chart.bundle.js"></script>
+<div id="content-body" ng-app="homeApp" ng-controller="HomeController">
+    <div class="panel panel-default">
+        <div class="panel-heading rel">
+            <strong class="h-i">
+                <span class="glyphicons glyphicons-signal"></span> <span>Báo cáo tổng hợp</span>
+            </strong>
+        </div>
+        <form action="/report/" method="post" id="frmReport" class="form-horizontal">
+	        <div class="panel-body">
+                <input type='hidden' name='_csrf' value='<%- _csrf %>'>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">
+                        Loại báo cáo
+                    </label>
+                    <div class="col-sm-3">
+                        <span class="ui-select dt-ui-select">
+                            <select class="validate[required]" id="typeReport" onchange="getRevenueChart()" name="typeReport">
+                                <option value="">--- Chọn ---</option>
+                                <option value="1">Doanh thu</option>
+                                <option value="2">Tồn kho</option>
+                                <option value="3">Báo cáo hàng xuất thiếu trong kho</option>
+                            </select>
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-2 control-label">
+                        Từ ngày
+                    </label>
+                    <div class="col-sm-3">
+                        <%if(true) {
+                            var dateChooser = {name: 'fromDate', id: 'fromDate', class: 'op-ux-input form-control'}; %>
+                        <%- include /common/dateChooser%>
+                        <%}%>
+                    </div>
+                    <label class="col-sm-2 control-label">
+                        Đến ngày
+                    </label>
+                    <div class="col-sm-3">
+                        <%if(true) {
+                            var dateChooser = {name: 'toDate', id: 'toDate', class: 'op-ux-input form-control'}; %>
+                        <%- include /common/dateChooser%>
+                        <%}%>
+                    </div>
+                </div>
+	        </div>
+	        <div class="panel-footer" >
+	            <button type="button" class="btn btn-primary" onclick="getRevenueChart()">Xem báo cáo</button>
+	        </div>
+        </form>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading rel">
+            <strong class="h-i">
+                <span class="glyphicons glyphicons-signal"></span> <span>Báo cáo doanh thu</span>
+            </strong>
+        </div>
+        <div class="panel-body">
+            <canvas id="revenueChart"></canvas>
+        </div>
+    </div>
+<script>
+function getRevenueChart() {
+    if($('#frmReport').validationEngine('validate')) {
+        var areaId = '';
+        var actionUrl = '/report?';
+        var formData = getFormAsString('frmReport');
+        d2tDeferredAjax(areaId, actionUrl, formData, "GET").done(function(data) {
+            console.log(data)
+        });
+    }
+}
+//DEPRECATED
+window.randomScalingFactor = function() {
+    return Math.round(Samples.utils.rand(-100, 100));
+};
+Samples = {};
+Samples.utils = {
+    // Adapted from http://indiegamr.com/generate-repeatable-random-numbers-in-js/
+    srand: function(seed) {
+        this._seed = seed;
+    },
+    rand: function(min, max) {
+        var seed = this._seed;
+        min = min === undefined ? 0 : min;
+        max = max === undefined ? 1 : max;
+        this._seed = (seed * 9301 + 49297) % 233280;
+        return min + (this._seed / 233280) * (max - min);
+    }
+};
+//INITIALIZATION
+
+Samples.utils.srand(Date.now());
+    var barChartData = {
+        labels: ["January", "February", "March", "April", "May", "June", "July"],
+        datasets: [{
+            label: 'Dataset 1',
+            backgroundColor: 'rgb(255, 99, 132)',
+            data: [
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor()
+            ]
+        }, {
+            label: 'Dataset 2',
+            backgroundColor: 'rgb(54, 162, 235)',
+            data: [
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor()
+            ]
+        }, {
+            label: 'Dataset 3',
+            backgroundColor: 'rgb(75, 192, 192)',
+            data: [
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor(),
+                randomScalingFactor()
+            ]
+        }]
+
+    };
+    window.onload = function() {
+        var ctx = document.getElementById("revenueChart").getContext("2d");
+        window.myBar = new Chart(ctx, {
+            type: 'bar',
+            data: barChartData,
+            options: {
+                title:{
+                    display:true,
+                    text:"Báo cáo doanh thu"
+                },
+                tooltips: {
+                    mode: 'index',
+                    intersect: false
+                },
+                responsive: true,
+                scales: {
+                    xAxes: [{
+                        stacked: true,
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                }
+            }
+        });
+    };
+</script>
+</div>

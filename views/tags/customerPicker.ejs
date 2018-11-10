@@ -1,0 +1,47 @@
+<%
+    customerPicker.id = CommonUtils.isNull(customerPicker.id) ? customerPicker.name : customerPicker.id;
+%>
+<div class="input-group">
+    <input type="text" 
+        id="<%=customerPicker.id%>" 
+        name="<%=customerPicker.name%>" 
+        <%if(customerPicker.ngModel) {%>ng-model="<%=customerPicker.ngModel%>" <%}%>
+        placeholder="Quét mã vạch để tìm KH, có thể tìm tên, số đt." 
+        class="op-ux-input form-control <%if(customerPicker.class) {%><%=customerPicker.class%><%}%>" 
+        style="z-index: 1;">
+    <span class="input-group-addon"><span class="glyphicons glyphicons-search"></span></span>
+</div>
+<script>
+$('#<%=customerPicker.id%>').autocomplete({
+    minLength: 2,
+    response: function(event, ui) {
+        if (!ui.content.length) {
+            var noResult = { value: "" ,label: "Không có thông tin" };
+            ui.content.push(noResult);
+        }
+    },
+    source: function( request, response ) {
+        $.ajax({
+          url: "/customer/load-by-code",
+          dataType: "json",
+          data: {
+              code: request.term
+          },
+          success: response,
+        });
+    },
+     select: function( event, ui ) { //when an item is selected
+        selectDataPicker('<%=customerPicker.id%>', ui);
+    }
+    }).autocomplete("instance")._renderItem = function( ul, item ) {
+       if(item.customerId) {
+           return $( "<li>" ).append( 
+                   "<div class='blockCode'>" 
+                   + item.fullName + " - " + item.phoneNumber 
+                   + "</div><div class='descCode'><i>" 
+                   + (item.address ? item.address : "&nbsp;" ) + "</i></div>" ).appendTo( ul );
+       } else {
+           return $( "<li>" ).append( item.label ).appendTo( ul );
+       }
+};
+</script>

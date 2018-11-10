@@ -1,0 +1,435 @@
+<html moznomarginboxes="" mozdisallowselectionprint="">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>VNOPTICAL</title>
+<link rel="canonical" href="https://www.vnoptical.com/">
+<link rel="alternate" media="handheld" href="https://m.vnoptical.com/">
+<meta name="theme-color" content="#e62117">
+<script src="/js/jquery.min.js"></script>
+<script src="/js/angular.min.js"></script>
+<script src="/js/angular-animate.min.js"></script>
+<script src="/js/angular-sanitize.min.js"></script>
+<script src="/js/masks.js"></script>
+<script src="/js/ngStorage.min.js"></script>
+<script src="/js/d2t.js"></script>
+<script src="/js/JsBarcode.code128.min.js"></script>
+<script type="text/javascript">
+var STG_PRINT_NAME = 'printSelectedItem';
+var STG_PRINT_CURRENT = '_pCurrentCode';
+var TOKEN_NAME = '_csrf';
+</script>
+<style type="text/css">
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+}
+body {
+    font-size: 10px;
+    font-family: Helvetica,Arial,sans-serif;
+}
+.print-item {
+    padding: 15px 12px 0px 15px;
+    width: 7cm;
+    height: 7.09cm;  
+    position: relative;
+    margin: 0 auto;
+}
+.print-item-inner {
+    position: relative;
+    height: 242px;
+}
+.print-item .hanging-string{
+    position: absolute;
+    top: 5px;
+    left: 0px;
+    width: 77%;
+}
+.borderDemo {
+    border: 1px solid #e5e5e5;
+}
+.print-item .retange{
+    height: 55px;
+    border-radius: 8px;
+}
+.print-item .side-down.borderDemo{
+    border-top-style: none;
+}
+.print-item .side-up.borderDemo{
+    border-bottom-style: dashed;
+}
+.print-item .line{
+    position: absolute;
+    top: 114px;
+    width: 26px;
+    left: 38.5%;
+    margin-left: -13px;
+    margin-top:-1px;
+    border-top: none;
+    background-color: #ffffff;
+    height: 115px;
+}
+.print-item .part-retange {
+    position: absolute;
+    bottom: -8px;
+    left: 0px;
+    width: 60px;
+    height: 120px;
+}
+.print-item .square {
+    position: absolute;
+    bottom: -3px;
+    right: 3px;
+    width: 120px;
+    height: 120px; 
+}
+.print-item .rela {
+    position: relative;
+}
+.print-item .pin-content {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    overflow: hidden;
+}
+.retange .pin-content {
+    padding: 5px 5px;
+    text-align: center;
+}
+.square .pin-content {
+    padding: 5px 5px;
+    text-align: center;
+}
+.barcode {
+    /* font-family: 'Libre Barcode 128 Text', cursive; */
+    font-family: 'code128';
+}
+.fs20 {
+    font-size: 60px;
+    line-height: 33px;
+}
+.rt180 {
+    -webkit-transform: rotate(180deg);
+    -moz-transform: rotate(180deg);
+    -o-transform: rotate(180deg);
+    -ms-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+.rt90 {
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+.t2Upper {
+    text-transform: uppercase;
+}
+.titleName {
+    margin-top: 3px;
+}
+.qrmsp {
+    position: absolute;
+    top: 28px;
+    right: 5px;
+    font-size: 8px; 
+}
+.qrmsp strong {
+    display: inline-block;
+    font-weight: normal;
+}
+.barcode2 {
+    margin-top: -12px;
+}
+.mt5 {
+    margin-top: -8px;
+    position: relative;
+    z-index: 3;
+}
+.barcode3 {
+    /* margin-left: -8px; */
+}
+.checkedItem {
+    position: absolute;
+    right: -150px;
+    top: 10px;
+    width: 100px;
+}
+.titleName {
+    font-weight: bold;
+}
+@media print {
+@page {
+    size: auto;   /* auto is the initial value */
+    margin: 0;  /* this affects the margin in the printer settings */
+}
+    .borderDemo {
+        border: none;
+    }
+    .print-item .side-up.borderDemo{
+        border: none;
+    }
+    .modal-footer,
+    .checkedItem {
+        display: none;
+    }
+    .isPrintOne .print-item {
+        display: none;
+    }
+    .isPrintOne .printSelected {
+        display: block;
+    }
+}
+</style>
+</head>
+<body id="bodyPrint" class="bodyPrint" ng-app="iframePrintApp" ng-controller="IframePrintController">
+    <div ng-if="!isViewAll" class="print-item">
+        <div class="print-item-inner" ng-if="!currentItem.code">
+            Không có mã tem
+        </div>
+        <div class="print-item-inner" ng-if="currentItem.code">
+            <div class="hanging-string" ng-show="currentItem.tem1">
+                <div class="retange side-up borderDemo rela">
+                    <div class="pin-content rt180">
+                         <canvas class="barcode2"
+                          jsbarcode-format="code128"  
+                          jsbarcode-value="{{currentItem.code}}"
+                          jsbarcode-displayvalue="false"
+                          jsbarcode-width="1"
+                          jsbarcode-height="25"
+                          ></canvas>
+                          <div class="mt5">{{currentItem.code}}</div> 
+                    </div>
+                </div>
+                <div class="retange side-down borderDemo rela">
+                    <div class="pin-content rt180">
+                        <div class="t2Upper titleName">{{currentItem.temTitle1}}</div>
+                        <div class="t2Upper msp">MSP:&nbsp;&nbsp;&nbsp;<b>{{currentItem.code}}</b></div>
+                        <div style="margin-bottom: 5px;">Giá:&nbsp;<b>{{currentItem.price|number2Decimal}}</b> VNĐ</div>
+                    </div>
+                </div>
+            </div>
+            <div class="line borderDemo" ng-show="currentItem.tem1"></div>
+            <!-- <div class="part-retange borderDemo">
+                
+            </div> -->
+            <div class="square borderDemo" ng-show="currentItem.tem2">
+                <div class="rela square">
+                    <div class="pin-content">
+                        <div style="margin-top: 5px;" class="t2Upper titleName">{{currentItem.temTitle2}}</div>
+                        <div class="t2Upper msp">MSP:&nbsp;<b>{{currentItem.code}}</b></div>
+                        <div class="">Giá:&nbsp;<b>{{currentItem.price|number2Decimal}}</b> VNĐ</div>
+                        <canvas class="barcode3"
+                          jsbarcode-value="{{currentItem.code}}" 
+                          jsbarcode-textmargin="1"
+                          jsbarcode-displayvalue="false"
+                          jsbarcode-width="1"
+                          jsbarcode-height="25"
+                          ></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<div ng-if="isViewAll" ng-class="{'isPrintOne': isPrintOne}">
+    <div class="print-item borderDemo" ng-repeat="item in listItem" ng-class="{'printSelected': item.printSelected}">
+        <div class="print-item-inner" ng-if="!item.code">
+            Không có mã tem
+        </div>
+        <div class="print-item-inner" ng-show="item.code">
+            <div class="hanging-string" ng-show="item.tem1">
+                <div class="retange side-up borderDemo rela">
+                    <div class="pin-content rt180">
+                         <canvas class="barcode2"
+                          jsbarcode-format="code128"  
+                          jsbarcode-value="{{currentItem.code}}"
+                          jsbarcode-displayvalue="false"
+                          jsbarcode-width="1"
+                          jsbarcode-height="30"
+                          ></canvas>
+                          <div class="mt5">{{currentItem.code}}</div> 
+                    </div>
+                </div>
+                <div class="retange side-down borderDemo rela">
+                    <div class="pin-content rt180">
+                        <div class="t2Upper titleName">{{item.temTitle1}}</div>
+                        <div class="t2Upper msp">MSP:&nbsp;&nbsp;&nbsp;<b>{{item.code}}</b></div>
+                        <div style="margin-bottom: 5px;">Giá:&nbsp;&nbsp;&nbsp;<b>{{item.price|number2Decimal}}</b> VNĐ</div>
+                    </div>
+                </div>
+            </div>
+            <div class="line borderDemo" ng-show="item.tem1"></div>
+            <!-- <div class="part-retange borderDemo">
+                
+            </div> -->
+            <div class="square borderDemo" ng-show="item.tem2">
+                <div class="rela square">
+                    <div class="pin-content">
+                        <div style="margin-top: 5px;" class="t2Upper titleName">{{currentItem.temTitle2}}</div>
+                        <div class="t2Upper msp">MSP:&nbsp;<b>{{item.code}}</b></div>
+                        <div class="">Giá:&nbsp;<b>{{currentItem.price|number2Decimal}}</b> VNĐ</div>
+                        <canvas class="barcode3"
+                          jsbarcode-value="{{currentItem.code}}" 
+                          jsbarcode-textmargin="1"
+                          jsbarcode-displayvalue="false"
+                          jsbarcode-width="1"
+                          jsbarcode-height="25"
+                          ></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="checkedItem">
+                <button ng-click="aPrint(item);">In tem này</button> <br/><br/>
+                <label>
+                    <input type="checkbox" ng-model="item.tem1" /> In tem 1
+                </label><br/>
+                <label>
+                    <input type="checkbox" ng-model="item.tem2" /> In tem 2
+                </label><br/><br/>
+                <button ng-click="remove(item);">Xóa</button>
+            </div>
+        </div>
+    </div>
+    <!-- <div class="modal-footer" style="padding: 30px;">
+       <button class="btn btn-primary" style="background-color: #337ab7; border-color: #2e6da4; color: #fff; font-size: 14px; padding: 6px 12px;" type="button" onclick="window.print();">In tất cả</button>
+    </div> -->
+</div>
+</body>
+<script type="text/javascript">
+var iframePrintApp = angular.module('iframePrintApp', [ 'ngAnimate', 'ngSanitize', 'ngStorage' ]);
+iframePrintApp.controller('IframePrintController', function($scope, $http, $localStorage, $rootScope, $filter, $compile) {
+    function f_isViewAll() {
+        var field = 'view';
+        var url = window.location.href;
+        if(url.indexOf('?' + field + '=') != -1)
+            return true;
+        else if(url.indexOf('&' + field + '=') != -1)
+            return true;
+        return false
+    }
+    $scope.currentItem = {};
+    $scope.isViewAll = f_isViewAll();
+    function initStore() {
+        var defaultTo = {}; defaultTo[STG_PRINT_NAME] = []; defaultTo[STG_PRINT_CURRENT] = '';
+        $scope.$storage = $localStorage.$default(defaultTo);
+    }
+    function init() {
+        initStore();
+        var isSet = false;
+        if($scope.$storage[STG_PRINT_CURRENT] != '') {
+            for(var i = 0; i < $scope.$storage[STG_PRINT_NAME].length; i++) {
+                if($scope.$storage[STG_PRINT_NAME][i].code == $scope.$storage[STG_PRINT_CURRENT]) {
+                    $scope.currentItem = $scope.$storage[STG_PRINT_NAME][i];
+                    isSet = true;
+                    break;
+                }
+            }
+        }
+        if(!isSet && $scope.$storage[STG_PRINT_NAME].length > 0) {
+            $scope.$storage[STG_PRINT_CURRENT] = $scope.$storage[STG_PRINT_NAME][0].code;
+            $scope.currentItem = $scope.$storage[STG_PRINT_NAME][0];
+        } else if($scope.$storage[STG_PRINT_NAME].length == 0){
+            $scope.$storage[STG_PRINT_CURRENT] = '';
+            $scope.currentItem = {};
+        }
+        if($scope.$storage[STG_PRINT_CURRENT]) {
+            $scope.getItemDetail($scope.$storage[STG_PRINT_CURRENT]);
+        }
+    }
+    function removeStoreByCode(code) {
+        for(var i = 0; i < $scope.$storage[STG_PRINT_NAME].length; i++) {
+            if($scope.$storage[STG_PRINT_NAME][i].code == $scope.code) {
+                $scope.$storage[STG_PRINT_NAME].splice(i, 1);
+                break;
+            }
+        }
+    }
+    $scope.getItemDetail = function(code) {
+        var actionUrl = '/product/load-by-code?';
+        d2tDeferredAjax('', actionUrl, 'code=' + trim(code), "GET").done(function(data) {
+            if(data.length > 0 && (data[0].code == code )) {
+                $scope.currentItem.price = data[0].price;
+                $scope.currentItem.temTitle1 = data[0].temTitle1;
+                $scope.currentItem.temTitle2 = data[0].temTitle2;
+                $scope.code = data[0].code;
+                $scope.$storage[STG_PRINT_CURRENT] = data[0].code;
+                $scope.$apply();
+            } else {
+                removeStoreByCode(code);
+                $scope.code = '';
+                $scope.$storage[STG_PRINT_CURRENT] = '';
+                $scope.currentItem = {};
+                $scope.$apply();
+            }
+        });
+    }
+    init();
+    $scope.listItem = [];
+    function getFromStore() {
+        for(var i = 0; i < $scope.$storage[STG_PRINT_NAME].length; i++) {
+            var item = {};
+            item.code = $scope.$storage[STG_PRINT_NAME][i].code;
+            item.isUpdated = false;
+            item.tem1 = $scope.$storage[STG_PRINT_NAME][i].tem1;
+            item.tem2 = $scope.$storage[STG_PRINT_NAME][i].tem2;
+            $scope.listItem.push(item);
+        }
+    }
+    getFromStore();
+    function updateItem() {
+        var actionUrl = '/product/load-by-code?';
+        var item = {};
+        for(var i = 0; i < $scope.listItem.length; i++) {
+            if(!$scope.listItem[i].isUpdated) {
+                item = $scope.listItem[i];
+                break;
+            }
+        }
+        if(item.code && !item.isUpdated) {
+            d2tDeferredAjax('', actionUrl, 'code=' + item.code, "GET").done(function(data) {
+                item.isUpdated = !0;
+                if(data.length > 0 && (data[0].code == item.code )) {
+                    item.price = data[0].price;
+                    item.temTitle1 = data[0].temTitle1;
+                    item.temTitle2 = data[0].temTitle2;
+                    $scope.$apply();
+                }
+                updateItem();
+            });
+        }
+    }
+    $scope.remove = function(item) {
+        var index = $scope.listItem.indexOf(item);
+        $scope.listItem.splice(index, 1);
+    }
+    $scope.isPrintOne = false;
+    $scope.aPrint = function(item) {
+        item.printSelected = !0;
+        $scope.isPrintOne = true;
+        setTimeout(function() {
+            if(!$scope.$phase) $scope.$apply();
+            window.print();
+            item.printSelected = !1;
+            $scope.isPrintOne = false;
+            $scope.$apply();
+        }, 200)
+        
+    }
+    if($scope.isViewAll) {
+        setTimeout(function(){
+            updateItem();
+        }, 500);
+    }
+    setTimeout(function() {
+        JsBarcode(".barcode2,.barcode3").init();
+    }, 300);
+}).filter('number2Decimal', [
+     function() { // should be altered to suit your needs
+         return function(input) {
+             return (input)? input.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") : "";
+     };
+}]);;
+</script>
+</html>

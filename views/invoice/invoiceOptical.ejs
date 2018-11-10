@@ -1,0 +1,145 @@
+<div class="btn-area btn-right-area hideOnPrint invoiceWrapper">
+    <button type="button" onclick="pressBackButton();" class="btn btn-danger cmd-shortcut-form" data-form-shortcut-key="ESC"><%-__('button.back')%> (ESC)</button>
+    <button id="print1" onclick="window.print();" class="btn btn-info cmd-shortcut-form" type="button" data-form-shortcut-key="Ctrl+P">In hóa đơn (Ctrl+P)</button>
+</div>
+<div class="invoice">
+    <table class="invoice-head">
+        <tr>
+            <th rowspan="4" style="padding-right: 5px;">
+                <img ng-src="{{organization.imagePath}}" style="height: 50px;">
+            </th>
+            <th>Đơn vị bán hàng</th>
+            <td class="uc" colspan="3">: <strong style="text-transform: uppercase;">{{organization.organizationName}}</strong></td>
+        </tr>
+        <tr ng-if="organization.taxNumber">
+            <th>Mã số thuế</th>
+            <td colspan="3">:</td>
+        </tr>
+        <tr>
+            <th>Địa chỉ</th>
+            <td colspan="3">: {{organization.address}}</td>
+        </tr>
+        <tr>
+            <th>Điện thoại</th>
+            <td class="tdic" colspan="3">: {{organization.phoneNumber}} <hr class="bbottom"/></td>
+        </tr>
+    </table>
+    <hr class="border"/>
+    <div class="invoice-descript">
+        <h4 style="font-weight: bold;">BIÊN NHẬN - BẢO HÀNH</h4>
+        <div>Liên 2: Giao cho người mua</div>
+        <div><i><%=sails.moment().format('[Ngày] DD [tháng] MM [năm] YYYY')%></i></div>
+        <div class="version">
+            <p>Mẫu số: <b>01GTKT3/001</b></p>
+            <p>Ký hiệu: <b>KL/13P</b></p>
+            <p>Số: <b>{{invoice.invoiceCode || '0000000000'}}</b></p>
+        </div>
+    </div>
+    <table class="invoice-mid">
+        <tr>
+            <th>Họ tên người mua hàng:</th>
+            <td>
+                <input type="text" ng-model="customer.full_name" name="fullName" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+        </tr>
+    </table>
+    <table class="invoice-mid">
+        <tr>
+            <th>Địa chỉ:</th>
+            <td>
+                <input type="text" ng-model="customer.address" name="address" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+        </tr>
+    </table>
+    <table class="invoice-mid">
+        <tr>
+            <th>Hình thức thanh toán:</th>
+            <td style="width: 35%;">
+                <input type="text" ng-model="dataOptical.paymentMethod" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+            <th>Số tài khoản:</th>
+            <td style="width: 35%;">
+                <input type="text" ng-model="dataOptical.bankAccount" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top: 5px;"><strong>Loại tật khúc xạ</strong></div>
+    <table class="invoice-mid">
+        <tr>
+            <th>- Mắt phải&nbsp;(R):</th>
+            <td class="w100">
+                <input type="text" name="R[refractive]" ng-model="dataOptical.R.refractive" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+        </tr>
+        <tr>
+            <th>- Mắt trái&nbsp;&nbsp;&nbsp;(L):</th>
+            <td class="w100">
+                <input type="text" name="L[refractive]" ng-model="dataOptical.L.refractive" class="opacity" />
+                <hr class="bbottom"/>
+            </td>
+        </tr>
+    </table>
+    <div style="margin-top: 5px;"><strong>Kính điều chỉnh</strong></div>
+    <table class="table-detail">
+        <tr>
+            <th>Mắt</th>
+            <th>TL không kính</th>
+            <th>SPH</th>
+            <th>CYL</th>
+            <th>A</th>
+            <th>TL có kính</th>
+            <th>Add</th>
+            <th>PD</th>
+        </tr>
+        <tr class="rows">
+            <td align="center"><b>R</b></td>
+            <td><input type="text" name="R[visionNoneClass]" ng-model="dataOptical.R.visionNoneClass" class="opacity alignCenter" /></td>
+            <td><input type="text" name="R[sph]" ng-model="dataOptical.R.sph" class="opacity alignCenter" /></td>
+            <td><input type="text" name="R[cyl]" ng-model="dataOptical.R.cyl" class="opacity alignCenter" /></td>
+            <td><input type="text" name="R[axis]" ng-model="dataOptical.R.axis" class="opacity alignCenter" /></td>
+            <td rowspan="2"><input name="visionHasClass" type="text" ng-model="dataOptical.visionHasClass" class="opacity alignCenter" /></td>
+            <td><input type="text" name="R[add]" ng-model="dataOptical.R.add" class="opacity alignCenter" /></td>
+            <td rowspan="2"><input name="pd" type="text" ng-model="dataOptical.pd" class="opacity alignCenter" /></td>
+        </tr>
+        <tr class="rows">
+            <td align="center"><b>L</b></td>
+            <td><input type="text" name="L[visionNoneClass]" ng-model="dataOptical.L.visionNoneClass" class="opacity alignCenter" /></td>
+            <td><input type="text" name="L[sph]" ng-model="dataOptical.L.sph" class="opacity alignCenter" /></td>
+            <td><input type="text" name="L[cyl]" ng-model="dataOptical.L.cyl" class="opacity alignCenter" /></td>
+            <td><input type="text" name="L[axis]" ng-model="dataOptical.L.axis" class="opacity alignCenter" /></td>
+            <td><input type="text" name="L[add]" ng-model="dataOptical.L.add" class="opacity alignCenter" /></td>
+        </tr>
+    </table>
+    <%include invoiceMainTable%>
+    <table class="invoice-bottom" style="margin-top:5px;">
+        <tr>
+            <th style="vertical-align: top;">
+                <div class="dropup">
+                    <a href="javascript:void(0);" data-toggle="dropdown"><b>Ghi chú:</b></a>
+                    <ul class="dropdown-menu hideOnPrint" role="menu" aria-labelledby="menu1">
+                      <li role="presentation" class="contentTextarea" ng-repeat="noteItem in noteList">
+                        <a role="menuitem" ng-click="selectNote($index)" href="javascript:void(0);" ng-bind-html="toLineBreak(noteItem.message)"></a>
+                      </li>
+                      <li role="presentation" class="divider"></li>
+                      <li role="presentation">
+                        <a role="menuitem" href="javascript:void(0);">...</a>
+                      </li>
+                    </ul>
+                </div> 
+            </th>
+            <td class="w100"><textarea ng-model="invoice.note" id="noteOptical" class="op-ux-input form-control opacity" style="font-weight: normal; font-style: italic;"></textarea></td>
+        </tr>
+    </table>
+    <table class="invoice-bottom" style="margin-top:5px;">
+        <tr>
+            <td align="center"><b>Người mua hàng</b> <br /> (Ký và ghi rõ họ tên)</td>
+            <th></th>
+            <td align="center"><b>Người bán hàng</b> <br /> (Ký, đóng dấu và ghi rõ họ tên)</td>
+        </tr>
+    </table>
+</div>

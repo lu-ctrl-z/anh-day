@@ -1,0 +1,136 @@
+<%if(typeof customer === 'undefined') {
+    customer = {};
+}%>
+<%if(typeof organization === 'undefined') {
+    organization = {};
+}%>
+<%if(typeof invoice === 'undefined') {
+    invoice = {};
+}%>
+<style>
+.invoice {
+    margin: 0 auto;
+}
+</style>
+<div id="invoice-body"
+    ng-app="invoiceApp"
+    ng-controller="InvoiceController"
+    style="position: relative;"
+>
+    <ul class="nav nav-tabs hideOnPrint invoiceWrapper" style="margin-bottom: 10px;">
+        <li class="active"><a data-toggle="tab" href="#invoiceOptical" onclick="onClickTab();">Kính mắt</a></li>
+        <li><a data-toggle="tab" href="#invoiceOther" onclick="onClickTab();">Phổ biến</a></li>
+    </ul>
+    <div class="banner-tool" style="position: absolute; top: 0px; right: 0px;">
+        <button id="button-show-menu" class="op-ux-button button-visibled button-active hideOnPrint" onclick="window.print();" type="button">
+            <span class="glyphicons glyphicons-print color-success"></span>
+        </button>
+    </div>
+    <div class="tab-content" ng-cloak>
+        <div id="invoiceOptical" class="tab-pane fade in active">
+            <%include invoiceOptical%>
+        </div>
+        <div id="invoiceOther" class="tab-pane fade">
+            <%include invoiceOther%>
+        </div>
+    </div>
+    <input type='hidden' name='_csrf' value='<%- _csrf %>'>
+</div>
+<%- include ../common/saveResultDisplay%>
+<script>
+function onClickTab() {
+    setTimeout(function() {
+        autosize.update(document.getElementById('noteOptical'));
+        autosize.update(document.getElementById('noteOther'));
+    }, 600)
+}
+$(function() {
+    autosize(document.getElementById('noteOptical'));
+    autosize(document.getElementById('noteOther'));
+})
+</script>
+<script type="text/javascript">
+var invoiceApp = angular.module('invoiceApp', ['ngAnimate', 'ngSanitize', 'ui.utils.masks' ]);
+invoiceApp.controller('InvoiceController', function( $scope, $http, $filter, $compile, $sce) {
+    $scope.customer = <%-JSON.stringify(customer)%>;
+    $scope.organization = <%-JSON.stringify(organization)%>;
+    $scope.invoice = <%-JSON.stringify(invoice)%>;
+    $scope.noteList = [{message: '- Kiểm tra lại sau 06 tháng. \n- Khi tái khám nhớ mang theo phiếu này'}];
+    $scope.selectNote = function(index) {
+        var message = $scope.noteList[index].message;
+        $scope.invoice.note = message;
+        onClickTab();
+    }
+    $scope.intoMoney = function(cart) {
+        try {
+            if(cart.quantity && cart.price) {
+                return parseFloat(cart.quantity) * parseFloat(cart.price);
+            }
+            return "";
+        } catch(e) {
+            console.log(e)
+            return "";
+        }
+        return "";
+    }
+    $scope.readNumber = function(total) {
+        total = parseFloat(total);
+        if(total > 0) {
+            return readNumber(total) + " đồng."
+        }
+        return "";
+    }
+    $scope.percent = function() {
+        var total = parseFloat($scope.invoice.totalPrice);
+        var percent = '0%';
+        if($scope.invoice.totalDiscount) {
+            percent = Math.round((parseFloat($scope.invoice.totalDiscount)/total) * 100) + '%';
+        }
+        return percent;
+    }
+    $scope.toLineBreak = function(string) {
+        return string.replace(/\n/g, "<br />");
+    }
+    /**Bat dau xu ly luu tru du lieu*/
+    var defaultPaymentMethod = "Tiền mặt";
+    $scope.dataOptical = {paymentMethod: defaultPaymentMethod};
+    if($scope.invoice.dataOptical) {
+        $scope.dataOptical = $scope.invoice.dataOptical;
+    } else {
+        $scope.dataOptical = {paymentMethod: defaultPaymentMethod};
+    }
+}).filter('number2Decimal', filterNumber2Decimal).filter('eyeLevel', filterEyeLevel);
+function pressBackButton() {
+    window.close();
+}
+function pressExportInvoice() {
+    if(confirmAction()) {
+        var scope = angular.element(document.getElementById('invoice-body')).scope();
+        var areaId = 'saveResultDisplayTag';
+        var actionUrl = '/invoice/save-invoice?opt=0' + d2tGetToken();
+        if(scope.invoice.invoiceId) {
+            formData.invoiceId = scope.invoice.invoiceId;
+        }
+        d2tUpdateAjax(areaId, actionUrl, formData, "callbackAfterSaveInvoice");
+    }
+}
+function callbackAfterSaveInvoice(returnCode, extraValue, invoice) {
+    var scope = angular.element(document.getElementById('invoice-body')).scope();
+    if(!scope.invoice.invoiceId) {
+        try {
+            if(typeof invoice === 'object') {
+                scope.invoice = invoice;
+                scope.$apply();
+            }
+            var newUrl = '/invoice/form/?customerId=' + scope.customer.customer_id;
+            newUrl += '&invoiceId=' + scope.invoice.invoiceId;
+            var newTitle = "<%=siteTitle%>";
+            window.history.replaceState({}, newTitle, newUrl);
+            $('#print1').trigger('click');
+        } catch(e) {
+            console.log(e)
+        }
+    }
+    //window.close();
+}
+</script>

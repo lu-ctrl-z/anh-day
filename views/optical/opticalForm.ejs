@@ -1,0 +1,90 @@
+<%if(typeof sysCatBO === 'undefined') {
+    sysCatBO = {};
+}%>
+<%if(typeof sysCatTypeBO === 'undefined') {
+    sysCatTypeBO = {};
+}%>
+<style>
+.ui-spinner {
+    border: none;
+    border-radius: 0px;
+}
+.ui-spinner-input {
+    margin: 0px;
+}
+</style>
+<form id="frmSave" class="form-horizontal">
+    <input type='hidden' name='_csrf' value='<%- _csrf %>'>
+    <input type='hidden' name='sysCatId' id="sysCatId" value='<%=form_value("sysCatId", req, sysCatBO)%>'>
+    <input type='hidden' name='sysCatTypeId' value='<%=form_value("sysCatTypeId", req, sysCatBO)%>'>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">
+            <%=__('global.code')%>
+        </label>
+        <div class="col-sm-3">
+            <div class="input-group">
+                <span class="input-group-addon"><i class="glyphicons glyphicons-barcode" aria-hidden="true"></i></span>
+                <input disabled="disabled" type="text" placeholder="Thông tin tự động sinh" style="z-index:1" maxlength="20" value='<%=form_value("code", req, sysCatBO)%>' name="code" class="op-ux-input form-control" id="code">
+            </div>
+        </div>
+        <label class="col-sm-2 control-label">
+            <%=__('global.title')%>
+        </label>
+        <div class="col-sm-3">
+            <input type="text" disabled="disabled" value="<%=sysCatTypeBO.name%>" class="op-ux-input form-control">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">
+            <%=__('global.name')%><%-__('common.mandatory')%>
+        </label>
+        <div class="col-sm-3">
+            <input type="text" maxlength="255" value='<%=form_value("name", req, sysCatBO) || ""%>' name="name" class="op-ux-input form-control validate[required,maxSize[255]]" id="name">
+        </div>
+        <label class="col-sm-2 control-label">
+            <%=__('optical.price')%><%-__('common.mandatory')%>
+        </label>
+        <div class="col-sm-3">
+            <input type="text" maxlength="15" value='<%=form_value("price", req, sysCatBO) || ""%>' name="price" ui-number-mask="0" ng-model="price" class="op-ux-input form-control validate[required,maxSize[15]]" id="price">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">
+            <%=__('optical.cost')%>
+        </label>
+        <div class="col-sm-3">
+            <input type="text" maxlength="15" value='<%=form_value("cost", req, sysCatBO) || ""%>' name="cost" ui-number-mask="0" ng-model="cost" class="op-ux-input form-control validate[maxSize[15]]" id="cost">
+            <%-__('optical.costNote')%>
+        </div>
+        <label class="col-sm-2 control-label">
+            <%=__('optical.unit')%>
+        </label>
+        <div class="col-sm-3">
+            <input type="text" maxlength="50" value='<%=form_value("unit", req, sysCatBO) || ""%>' name="unit" class="op-ux-input form-control validate[maxSize[50]]" id="unit">
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-2 control-label">
+            <%=__('optical.description')%>
+        </label>
+        <div class="col-sm-8">
+            <textarea maxlength="500" name="description" class="op-ux-input form-control validate[maxSize[500]]" id="description"><%=form_value("description", req, sysCatBO) || ""%></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-8 control-label">
+            <%=__('optical.warningValue')%>
+        </label>
+        <div class="col-sm-2">
+            <input type="text" jq-spinner1 min="0" max="99999" maxlength="5" value='<%=form_value("warningValue", req, sysCatBO) || ""%>' ng-model="warningValue" name="warningValue" class="op-ux-input form-control validate[maxSize[5]]" id="warningValue">
+        </div>
+    </div>
+    <div class="btn-area">
+        <%if(sysCatBO.sysCatId) {%>
+        <button type="button" class="btn btn-danger" onclick="prepareSearch(<%=form_value("sysCatTypeId", req, sysCatBO)%>);"><%-__('button.cancel')%></button>
+        <%} else {%>
+        <button type="submit" onclick="pressSearchButton(); return false;" class="btn btn-info"><%-__('button.search')%></button>
+        <%}%>
+        <button type="button" class="btn btn-info" onclick="pressSaveButton();"><%-__('button.save')%></button>
+    </div>
+</form>
