@@ -87,7 +87,7 @@ module.exports = {
                 member_type : $member_type,
                 auth_type : $auth_type
             };
-            User.validate($dataInsert, function(error) {
+            /*User.validate($dataInsert, function(error) {
                 if (error) {
                     var messages = message.of('user', error.ValidationError,
                             res.i18n);
@@ -106,6 +106,17 @@ module.exports = {
                             res.redirect('/admin/user/');
                         }
                     });
+                }
+            });*/
+            User.create($dataInsert, function(err, user) {
+                if (err) {
+                    var messages = message.of('user',
+                            err.ValidationError, res.i18n);
+                    res.view('admin/user/form', {
+                        message : messages
+                    });
+                } else {
+                    res.redirect('/admin/user/');
                 }
             });
         });
