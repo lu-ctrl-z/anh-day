@@ -220,7 +220,7 @@ module.exports = {
         }
         if(sysCatId > 0) {
             var updated = await SysCat.update({sysCatId: sysCatId}).set(formData).fetch();
-            cbAfterInserOrUpdate(updated);
+            cbAfterInserOrUpdate(updated[0]);
         } else {
             var created = await SysCat.create(formData).fetch();
             cbAfterInserOrUpdate(created);
