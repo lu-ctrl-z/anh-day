@@ -179,55 +179,52 @@ module.exports = {
     /**
      * Xử lý lưu thông tin SysCat
      */
-    actionProcessSaveSysCat: function(req, res) {
+    actionProcessSaveSysCat: async function(req, res) {
         var sysCatTypeId = CommonUtils.NVL(req.param('sysCatTypeId'));
         if(sysCatTypeId <= 0) {
             var result = CommonUtils.createMessage("global.error", Constants.COMMON.ERROR_CODE, res);
             res.view(Constants.PAGE_FORWARD.SAVE_RESULT, result);
             return;
         }
-        SysCatType.findOne({sysCatTypeId: sysCatTypeId}).exec((err, sysCatTypeBO) => {
-            if(err || !sysCatTypeBO) {
-                console.log(err);
-                var result = CommonUtils.createMessage("global.error", Constants.COMMON.ERROR_CODE, res);
+        var sysCatTypeBO = await SysCatType.findOne({sysCatTypeId: sysCatTypeId});
+        if(!sysCatTypeBO) {
+            var result = CommonUtils.createMessage("global.error", Constants.COMMON.ERROR_CODE, res);
+            res.view(Constants.PAGE_FORWARD.SAVE_RESULT, result);
+            return;
+        }
+        var boolean = await CommonUtils.havePermissionWithOrg(req, sysCatTypeBO.organizationId, function(b) {});
+        if(!boolean) {
+            res.view(Constants.PAGE_FORWARD.INVALID_PERMISSION);
+            return;
+        }
+        var organizationBO = await Organization.findOne({organizationId: sysCatTypeBO.organizationId});
+        var sysCatId = CommonUtils.NVL(CommonUtils.getParameterLong(req, 'sysCatId'));
+        var formData = {
+                name: req.param('name'),
+                price: CommonUtils.getParameterLong(req, 'price'),
+                cost: CommonUtils.NVL(CommonUtils.getParameterLong(req, 'cost'), 0),
+                unit: req.param('unit'),
+                warningValue: CommonUtils.NVL(CommonUtils.getParameterLong(req, 'warningValue'), 0),
+                description: CommonUtils.NVL(req.param('description')),
+                sysCatTypeId: sysCatTypeId,
+        };
+        function cbAfterInserOrUpdate(sysCatBO) {
+            var code = CommonUtils.sprintf(Constants.FORMAT.SYS_CAT_CODE, organizationBO.code, sysCatBO.sysCatId);
+            SysCat.update({ sysCatId: sysCatBO.sysCatId }, {code: code}).exec(function(err, sysCatBO) {
+                var result = {};
+                var result = CommonUtils.createMessage("global.success", Constants.COMMON.SUCCESS_CODE, res);
+                result.callback = req.param('callback');
+                result.returnData = JSON.stringify(sysCatBO);
                 res.view(Constants.PAGE_FORWARD.SAVE_RESULT, result);
-                return;
-            }
-            CommonUtils.havePermissionWithOrg(req, sysCatTypeBO.organizationId, function(boolean) {
-                if(!boolean) {
-                    res.view(Constants.PAGE_FORWARD.INVALID_PERMISSION);
-                    return;
-                }
-                Organization.findOne({organization_id: sysCatTypeBO.organizationId}, (err, organizationBO) => {
-                    var sysCatId = CommonUtils.NVL(req.param('sysCatId'));
-                    var formData = {
-                            name: req.param('name'),
-                            price: CommonUtils.getParameterLong(req, 'price'),
-                            cost: CommonUtils.getParameterLong(req, 'cost'),
-                            unit: req.param('unit'),
-                            warningValue: CommonUtils.getParameterLong(req, 'warningValue'),
-                            description: CommonUtils.NVL(req.param('description')),
-                            sysCatTypeId: sysCatTypeId,
-                    };
-                    SysCat.saveOrUpdate({sysCatId: sysCatId}, formData, function(err, sysCatBO) {
-                        if(err) {
-                            console.log(err);
-                            var result = CommonUtils.createMessage("global.error", Constants.COMMON.ERROR_CODE, res);
-                            res.view(Constants.PAGE_FORWARD.SAVE_RESULT, result);
-                        } else {
-                            var code = CommonUtils.sprintf(Constants.FORMAT.SYS_CAT_CODE, organizationBO.code, sysCatBO.sysCatId);
-                            SysCat.update({ sysCatId: sysCatBO.sysCatId }, {code: code}).exec(function(err, sysCatBO) {
-                                var result = {};
-                                var result = CommonUtils.createMessage("global.success", Constants.COMMON.SUCCESS_CODE, res);
-                                result.callback = req.param('callback');
-                                result.returnData = JSON.stringify(sysCatBO);
-                                res.view(Constants.PAGE_FORWARD.SAVE_RESULT, result);
-                            });
-                        }
-                    });
-                });
             });
-        });
+        }
+        if(sysCatId > 0) {
+            var updated = await SysCat.update({sysCatId: sysCatId}).set(formData).fetch();
+            cbAfterInserOrUpdate(updated);
+        } else {
+            var created = await SysCat.create(formData).fetch();
+            cbAfterInserOrUpdate(created);
+        }
     },
     actionProcessDeleteType: function(req, res) {
         var sysCatTypeId = CommonUtils.NVL(req.param('sysCatTypeId'));
