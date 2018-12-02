@@ -27,7 +27,8 @@ module.exports = {
         soldDate: {
             type: 'string',
             columnName: 'sold_date',
-            columnType: 'datetime'
+            columnType: 'datetime',
+            allowNull: true
         },
         invoiceId : {
             type: 'number',

@@ -51,7 +51,7 @@ ProductController.actionProcessSave = function(req, res) {
                 createdUser: req.session.user.id
             })
         }
-        Product.create(formData, callbackAfterSaveOrUpdate);
+        Product.createEach(formData, callbackAfterSaveOrUpdate);
     });
 }
 /**
