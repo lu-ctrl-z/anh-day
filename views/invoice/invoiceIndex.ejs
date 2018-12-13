@@ -98,10 +98,10 @@ $(document).ready( function() {
                { data : "totalPrice", className : "alignRight", render: formatMoney},
                { data : "trueTotalPrice", className : "alignRight", render: formatMoney},
                {
-                   data : "createdAt",
+                   data : "createdAt", className : "alignCenter",
                    render : function(data, type, row) {
                        return null == data ? "" 
-                          : moment(data).format('DD/MM/YYYY HH:mm');
+                          : moment(data).format('DD/MM/YYYY');
                    }
                },
                { data : "organizationName", },
