@@ -21,6 +21,14 @@ module.exports.getParameterLong = function(req, name) {
     }
     return value;
 }
+module.exports.convertStringToDate = function(value) {
+    var dateArray = value.split('/');
+    var day = dateArray[0];
+    var month = dateArray[1] - 1;
+    var year = dateArray[2];
+    var sourceDate = new Date(year, month, day);
+    return sourceDate;
+}
 /**
  * check null hoac rong
  */

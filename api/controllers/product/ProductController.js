@@ -63,17 +63,24 @@ ProductController.actionSalePage = function(req, res) {
 /**
  * ham thuc hien load man hinh xuat hoa don
  */
-ProductController.actionSaleInvoiceSave = function(req, res) {
+ProductController.actionSaleInvoiceSave = async function(req, res) {
     var invoiceData = req.param('invoice');
+    if(invoiceData.createdAt) {
+        invoiceData.createdAt = CommonUtils.convertStringToDate(invoiceData.createdAt);
+    } else {
+        //invoiceData.createdAt = new Date();
+    }
     var customer = req.param('customer');
     var customerId = 0;
     if(customer && customer.customer_id) {
         customerId = CommonUtils.NVL(customer.customer_id);
     }
     var invoiceId = CommonUtils.NVL(invoiceData.invoiceId);
-    if(invoiceId > 0) {} else {
-        invoiceData.invoiceId = null;
+    if(invoiceId > 0) {
+    } else {
+        delete invoiceData.invoiceId;
     }
+
     var customerData = {
         full_name: customer.full_name,
         phone_number: customer.phone_number,
@@ -88,88 +95,76 @@ ProductController.actionSaleInvoiceSave = function(req, res) {
         result.message = message;
         res.view(Constants.PAGE_FORWARD.SAVE_RESULT, result);
     }
-    var afterSaveCustomer = function(err, customerSaved) {
-        if(err) {
-            console.log(err);
-            callBackError("Lưu thông tin không thành công, hãy thử lại");
+    var afterSaveCustomer = async function(customerSaved) {
+        console.log('customerSaved');
+        console.log(customerSaved);
+        invoiceData.status = 0;
+        invoiceData.customerId = customerSaved.customer_id || customerSaved[0].customer_id;
+
+
+        if(invoiceId > 0) {
+            var updated = await Invoice.update({invoiceId: invoiceId}).set(invoiceData).fetch();
+            afterSaveInvoice(updated[0]);
         } else {
-            invoiceData.status = 0;
-            invoiceData.customerId = customerSaved.customer_id || customerSaved[0].customer_id;
-            Invoice.saveOrUpdate({invoiceId: invoiceId}, invoiceData, afterSaveInvoice);
+            var created = await Invoice.create(invoiceData).fetch();
+            afterSaveInvoice(created);
         }
     }
-    var afterSaveInvoice = function(err, invoiceSaved) {
-        if(err) {
-            console.log(err);
-            callBackError("Lưu thông tin không thành công, hãy thử lại");
-        } else {
-            if(invoiceSaved && !invoiceSaved.invoiceId) {
-                invoiceSaved = invoiceSaved[0];
-            }
-            if(invoiceSaved.cartList && invoiceSaved.cartList.length > 0) {
-                for(var i = 0; i < invoiceSaved.cartList.length; i++) {
-                    var item = invoiceSaved.cartList[i];
-                    if(!item.isSubmited) {
-                        Product.saleProduct(req.session.user.id, invoiceSaved.invoiceId, item.sysCatId, item.quantity, function(productAdded, productUpdated) {
-                            console.log(productAdded, productUpdated)
-                        });
-                    }
+
+    var afterSaveInvoice = async function(invoiceSaved) {
+        if(invoiceSaved.cartList && invoiceSaved.cartList.length > 0) {
+            for(var i = 0; i < invoiceSaved.cartList.length; i++) {
+                var item = invoiceSaved.cartList[i];
+                if(!item.isSubmited) {
+                    Product.saleProduct(req.session.user.id, invoiceSaved.invoiceId, item.sysCatId, item.quantity, function(productAdded, productUpdated) {
+                        console.log(productAdded, productUpdated)
+                    });
                 }
             }
-            var invoiceCode = CommonUtils.sprintf("1%'09s", invoiceSaved.invoiceId);
-            Invoice.update({ invoiceId: invoiceSaved.invoiceId }, {invoiceCode: invoiceCode})
-                   .exec(function(err, invoiceFinal) {
-                        if(invoiceFinal && !invoiceFinal.invoiceId) {
-                            invoiceFinal = invoiceFinal[0];
-                        }
-                        var result = {};
-                        result.returnCode = Constants.COMMON.SUCCESS_CODE;
-                        result.extraValue = invoiceFinal.invoiceId;
-                        result.callback = 'saveSaleSuccess';
-                        result.message = sails.__("global.success");
-                        res.view(Constants.PAGE_FORWARD.SAVE_RESULT, result);
-                   });
         }
+        var invoiceCode = CommonUtils.sprintf("1%'09s", invoiceSaved.invoiceId);
+        var updated = await Invoice.update({ invoiceId: invoiceSaved.invoiceId }).set({invoiceCode: invoiceCode}).fetch();
+        var result = {};
+        result.returnCode = Constants.COMMON.SUCCESS_CODE;
+        result.extraValue = updated[0].invoiceId;
+        result.callback = 'saveSaleSuccess';
+        result.message = sails.__("global.success");
+        res.view(Constants.PAGE_FORWARD.SAVE_RESULT, result);
+
     }
-    var updateCustomer = function(__customerId) {
-        Customer.findOne({
-            customer_id: __customerId
-        }).exec((err, customerBO) => {
-            if (err) {
-                console.log(err);
-                callBackError("Lưu thông tin không thành công, hãy thử lại");
-            } else if (customer) {
-                CommonUtils.havePermissionWithOrg(req, customerBO.organization_id, function(boolean) {
-                    if(boolean) {
-                        Customer.update({ customer_id : __customerId }, customerData)
-                                .exec(afterSaveCustomer);
-                    } else {
-                        res.view(Constants.PAGE_FORWARD.INVALID_PERMISSION);
-                    }
-                })
-            } else {
-                res.view(Constants.PAGE_FORWARD.INVALID_PERMISSION);
-            }
-        });
+    var updateCustomer = async function(__customerId) {
+
+        var customerBO = await Customer.findOne({customer_id: __customerId});
+
+        if(!customerBO) {
+            callBackError("Lưu thông tin không thành công, hãy thử lại");
+            return;
+        }
+
+        console.log('customerBO');
+        console.log(customerBO);
+
+        var boolean = await CommonUtils.havePermissionWithOrg(req, customerBO.organization_id, function(b) {});
+        if(!boolean) {
+            res.view(Constants.PAGE_FORWARD.INVALID_PERMISSION);
+            return;
+        }
+        var updated = await Customer.update({ customer_id : __customerId }).set(customerData).fetch();
+        afterSaveCustomer(updated[0]);
+
     };
     if(customerId > 0) {
         updateCustomer(customerId);
     } else {
         if(invoiceId > 0) {
-            Invoice.findOne({
-                invoiceId: invoiceId
-            }).exec((err, invoiceBO) => {
-                if (err) {
-                    console.log(err);
-                    callBackError("Lưu thông tin không thành công, hãy thử lại");
-                } else if (invoiceBO) {
-                    updateCustomer(invoiceBO.customerId);
-                } else {
-                    res.view(Constants.PAGE_FORWARD.INVALID_PERMISSION);
-                }
-            });
+            var invoiceBO = await Invoice.findOne({invoiceId: invoiceId});
+            if(!invoiceBO) {
+                res.view(Constants.PAGE_FORWARD.INVALID_PERMISSION);
+            }
+            updateCustomer(invoiceBO.customerId);
         } else {
-            Customer.create(customerData, afterSaveCustomer);
+            var created = await Customer.create(customerData).fetch();
+            afterSaveCustomer(created);
         }
     }
 }
