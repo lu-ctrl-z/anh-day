@@ -4,7 +4,7 @@ module.exports.Constants = {
         INVALID_PERMISSION: "common/invalidPermission",
     },
     FORMAT : {
-        SYS_CAT_CODE: "%s%'06s",
+        SYS_CAT_CODE: "%s%'05s",
     },
     COMMON: {
         SUCCESS_CODE: 1,
@@ -15,5 +15,5 @@ module.exports.Constants = {
     SYS_CAT_TYPE: {
         SYS_CAT_TYPE_OPTICAL: 1,
     },
-    
+
 };
