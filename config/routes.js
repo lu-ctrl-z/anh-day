@@ -312,7 +312,7 @@ module.exports.routes = {
       controller : 'product/ProductController',
       action : 'actionSaleInvoiceView',
       locals : {
-          layout : 'layouts/layouts/popupLayout'
+          layout : 'layouts/popupLayout'
       }
   },
   //báo cáo

@@ -131,6 +131,17 @@ input.opacity {
                 <form id="frmPayInfo" class="form-horizontal" style="margin-top:20px;" ng-cloak>
                     <div class="form-group">
                         <label class="col-sm-2 control-label">
+                            <%=sails.__('invoice.invoiceDate')%>
+                        </label>
+                        <div class="col-sm-3">
+                            <%if(true) {
+                                var dateChooser = {name: 'createdAt', id: 'filterCreatedAt', class: 'op-ux-input form-control'}; %>
+                            <%- include ../common/dateChooser%>
+                            <%}%>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label">
                             Tổng giá trị hóa đơn
                         </label>
                         <label class="col-sm-3 control-label" style="text-align: left;">
@@ -514,6 +525,7 @@ function selectDataPicker(id, ui) {
             formData.invoice.totalDiscount = $scope.totalDiscount;
             formData.invoice.note = $scope.invoice.note;
             formData.invoice.cartList = $scope.productList;
+            formData.invoice.createdAt = $('#filterCreatedAt').val();
             if(formData.invoice.cartList && formData.invoice.cartList.length > 0) {
                 for(var i = 0; i < formData.invoice.cartList.length; i++) {
                     formData.invoice.cartList[i].productName = formData.invoice.cartList[i].name + " - " + formData.invoice.cartList[i].typeName;

@@ -4,7 +4,7 @@ module.exports.Constants = {
         INVALID_PERMISSION: "common/invalidPermission",
     },
     FORMAT : {
-        SYS_CAT_CODE: "%s%'06s",
+        SYS_CAT_CODE: "%s%'05s",
     },
     COMMON: {
         SUCCESS_CODE: 1,

@@ -218,7 +218,34 @@ module.exports = {
                 })
             });
         };
-        Sprint.validate($dataInsert, function(err) {
+
+        var startDate = new Date($dataInsert.start_time);
+        var endDate = new Date($dataInsert.end_time);
+        if(endDate <= startDate) {
+            return onError(sails.__('sprint.end_time.required'));
+        }
+        Sprint.getMaxSprintByProject($dataInsert.project_id, function(err, ret) {
+            if(err) onError();
+            else {
+                var nextSprintNumber = 1;
+                if(ret.sprint_number) nextSprintNumber = ret.sprint_number + 1;
+                if(nextSprintNumber != $dataInsert.sprint_number) {
+                    onError('Sprint has created!.');
+                } else {
+                    Sprint.create($dataInsert, function(err, ret) {
+                        if(err) {
+                            var messages = message.of('sprint', err.ValidationError,
+                                    res.i18n);
+                            onError(messages);
+                        } else {
+                            onSuccess({layout: null, nextNumber: nextSprintNumber});
+                        }
+                    })
+                }
+            }
+        });
+
+        /*Sprint.validate($dataInsert, function(err) {
             if (err) {
                 var messages = message.of('sprint', err.ValidationError,
                         res.i18n);
@@ -250,7 +277,7 @@ module.exports = {
                     }
                 })
             }
-        });
+        });*/
     }
 };
 

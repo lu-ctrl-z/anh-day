@@ -21,6 +21,14 @@ module.exports.getParameterLong = function(req, name) {
     }
     return value;
 }
+module.exports.convertStringToDate = function(value) {
+    var dateArray = value.split('/');
+    var day = dateArray[0];
+    var month = dateArray[1] - 1;
+    var year = dateArray[2];
+    var sourceDate = new Date(year, month, day);
+    return sourceDate;
+}
 /**
  * check null hoac rong
  */
@@ -51,6 +59,8 @@ module.exports.NVL = function(checkValue, nullValue) {
         return nullValue;
     } else if (typeof checkValue === "number" && checkValue < 0) {
         return nullValue;
+    } else if(checkValue === null) {
+        return nullValue;
     }
     return checkValue;
 }
@@ -66,36 +76,30 @@ module.exports.createMessage = function(messageKey, returnCode, res) {
 /**
  * check quyền đối với id đơn vị
  */
-module.exports.havePermissionWithOrg = function(req, orgId, cb) {
+module.exports.havePermissionWithOrg = async function(req, orgId, cb) {
     var orgId1 = req.session.user.organizationId;
-    Organization.findOne({organizationId: orgId1}).exec((err, org1) => {
-        if(err) {
-            console.log(err);
-        } else if(org1) {
-            Organization.findOne({organizationId: orgId}).exec((err, org2) => {
-                if(err) {
-                    console.log(err);
-                } else if(org2) {
-                    try {
-                        var orgPath1 = org1.path;
-                        var orgPath2 = org2.path;
-                        if(orgPath2.indexOf(orgPath1) >= 0) {
-                            cb(true);
-                        } else {
-                            cb(false);
-                            console.warn(new Date(), req.session.user, "Đã thực hiện hack quyền.");
-                        }
-                    } catch(e) {
-                        console.log(e.message)
-                    }
-                } else {
-                    cb(false);
-                }
-            })
-        } else {
-            cb(false);
-        }
-    });
+    var org1 = await Organization.findOne({organizationId: orgId1});
+    if(!org1) {
+        cb(false);
+        return false;
+    }
+
+    var org2 = await Organization.findOne({organizationId: orgId});
+    if(!org2) {
+        cb(false);
+        return false;
+    }
+
+    var orgPath1 = org1.path;
+    var orgPath2 = org2.path;
+    if(orgPath2.indexOf(orgPath1) >= 0) {
+        cb(true);
+        return true;
+    } else {
+        console.warn(new Date(), req.session.user, "Đã thực hiện hack quyền.");
+        cb(false);
+        return false;
+    }
 };
 module.exports.sprintf = function () {
     //  discuss at: http://locutus.io/php/sprintf/

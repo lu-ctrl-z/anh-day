@@ -39,6 +39,7 @@ module.exports = {
         cost : {//giá gốc
             type: 'number',
             columnName: 'cost',
+            defaultsTo: 0,
         },
         price : {//giá bán
             type: 'number',

@@ -53,6 +53,11 @@ module.exports = {
             required: true, // 0: chưa phê duyệt, 1: đã phê duyệt
             columnName: 'status',
         },
+        createdAt: {
+            type: 'ref',
+            columnName: 'createdAt',
+            columnType: 'datetime',
+        },
     },
     /**
      * search danh sách Hoa don theo quyền của user.
