@@ -118,7 +118,23 @@ module.exports.models = {
   *                                                                          *
   ***************************************************************************/
 
-  cascadeOnDestroy: true
+  cascadeOnDestroy: true,
 
+  /**
+   * saveOrUpdate 
+   */
+  saveOrUpdate: function(criteria, values, cb) {
+      var self = this; // reference for use by callbacks
+      // If no values were specified, use criteria
+      if (!values) values = criteria.where ? criteria.where : criteria;
 
+      this.find(criteria).limit(1).exec(function (err, result){
+          if(err) return cb(err, false);
+          if(result){
+              self.update(criteria, values, cb);
+          } else {
+              self.create(values, cb);
+          }
+      });
+  }
 };

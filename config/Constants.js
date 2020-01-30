@@ -15,5 +15,5 @@ module.exports.Constants = {
     SYS_CAT_TYPE: {
         SYS_CAT_TYPE_OPTICAL: 1,
     },
-    
+
 };
