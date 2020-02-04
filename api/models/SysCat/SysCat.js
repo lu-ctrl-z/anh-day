@@ -102,6 +102,8 @@ module.exports = {
                      ", o.tem_title_1 As temTitle1 " +
                      ", o.tem_title_2 As temTitle2 " +
                      ", o.image_path As imagePath " +
+                     ", o.address As address " +
+                     ", o.organization_name As org " +
                      ", sct.name As typeName " +
                      ", (SELECT p.product_id FROM PRODUCT p WHERE p.sys_cat_id = sc.sys_cat_id AND p.is_sold = 0 LIMIT 1) As productId ";
         var from =  " FROM SYS_CAT sc " +

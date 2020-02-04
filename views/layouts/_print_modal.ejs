@@ -1,5 +1,5 @@
 <div id="print-container" ng-app="printApp" ng-controller="PrintController" class="modal fade printModal" style="display: none" >
-    <div class="modal-dialog">
+    <div class="modal-dialog" style="width: 663px;">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal"
@@ -17,12 +17,15 @@
                     <button class="op-ux-button btn-success" ng-class="{selected: currentTemplate==3}" ng-click="setTemplate(3)" type="button" title="Kích thước 70mmx71mm">
                         3
                     </button>
+                    <button class="op-ux-button btn-success" ng-class="{selected: currentTemplate==4}" ng-click="setTemplate(4)" type="button" title="Kích thước 92mmx44mm">
+                        4
+                    </button>
                 </div>
                 
                 <!-- <h4 class="modal-title">Có {{pendingCount}} tem cần in </h4> -->
             </div>
             <div class="modal-body form-layout" style="overflow: visible;">
-               <div class="printLeft" style="width: 280px;">
+               <div class="printLeft" style="width: 343px;">
                     <iframe ng-if="isShow" id="iframePrint" name="iframePrint" src="" class="iframePrint"></iframe>
                </div>
                <div class="printRight form-horizontal">
@@ -35,7 +38,7 @@
                         </tr>
                         <tr>
                             <th style="width:80px;">Khổ in :</th>
-                            <td colspan="3">{{currentTemplate==1 ? '73mmx57mm' : currentTemplate==2 ? '59mmx28mm' : currentTemplate==3 ? '70mmx71mm' : ''}}</td>
+                            <td colspan="3">{{currentTemplate==1 ? '73mmx57mm' : currentTemplate==2 ? '59mmx28mm' : currentTemplate==3 ? '70mmx71mm' : currentTemplate==4 ? '92mmx44mm' : ''}}</td>
                         </tr>
                         <tr>
                             <th>Tên :</th>
@@ -121,6 +124,7 @@ printApp.controller('PrintController', function($scope, $http, $localStorage, $f
         defaultTo[STG_PRINT_CURRENT] = '';
         defaultTo[STG_PRINT_CURRENT_TEMPLATE] = 1;
         defaultTo[STG_PRINT_CURRENT_TITLE] = "";
+        defaultTo[STG_PRINT_CURRENT_ORG] = "";
         $scope.$storage = $localStorage.$default(defaultTo);
         $scope.currentTemplate = $scope.$storage[STG_PRINT_CURRENT_TEMPLATE];
         $scope.currentTitle = $scope.$storage[STG_PRINT_CURRENT_TITLE];
@@ -166,6 +170,7 @@ printApp.controller('PrintController', function($scope, $http, $localStorage, $f
             $scope.$storage[STG_PRINT_CURRENT] = '';
             $scope.$storage[STG_PRINT_CURRENT_TEMPLATE] = 1;
             $scope.$storage[STG_PRINT_CURRENT_TITLE] = "";
+            $scope.$storage[STG_PRINT_CURRENT_ORG] = "";
             $scope.$storage.$apply();
             location.reload();
         }

@@ -101,6 +101,55 @@ body {
     margin-top: -9px;
 }
 /*css cho từng template*/
+.key-template-4 .tem-container{
+    width: 90mm;
+    font-size: 10px;
+}
+.key-template-4 .tem-item-wrapper{
+    height: 40mm;
+}
+.key-template-4 .tem-item{
+    padding: 1.5mm 3mm;
+}
+.key-template-4 .content {
+    width: 40mm;
+    height: 40mm;
+    position: absolute;
+    border-radius: 6px;
+    top: 0mm;
+}
+.key-template-4 .content-up{
+    left: 0mm;
+    text-align: center;
+}
+.key-template-4 .content-down{
+    right: 0mm;
+    text-align: center;
+}
+.key-template-4 .rage{
+    width: 26mm;
+    height: 8mm;
+    top: 50%;
+    margin-top: -4mm;
+    position: absolute;
+    right: 32.3mm;
+    background-color:#fff;
+    border-right: none;
+}
+.key-template-4 .code{
+    position: relative;
+    margin-top: -9px;
+}
+.key-template-4 svg.barcode {
+    transform: translate(0,0) scale(1, 1) !important;
+    margin-left: 0px;
+}
+.key-template-4 .tuc {
+	margin-top: 5px;
+	font-size: 11px;
+    /* font-weight: bold; */
+}
+/*css cho từng template*/
 .key-template-2 .tem-container{
     width: 59mm;
     font-size: 9px;
