@@ -102,18 +102,18 @@ body {
 }
 /*css cho từng template*/
 .key-template-4 .tem-container{
-    width: 90mm;
-    font-size: 10px;
+    width: 70mm;
+    font-size: 8px;
 }
 .key-template-4 .tem-item-wrapper{
-    height: 40mm;
+    height: 30mm;
 }
 .key-template-4 .tem-item{
     padding: 1.5mm 3mm;
 }
 .key-template-4 .content {
-    width: 40mm;
-    height: 40mm;
+    width: 30mm;
+    height: 30mm;
     position: absolute;
     border-radius: 6px;
     top: 0mm;
@@ -138,15 +138,15 @@ body {
 }
 .key-template-4 .code{
     position: relative;
-    margin-top: -9px;
+    margin-top: -12px;
 }
 .key-template-4 svg.barcode {
     transform: translate(0,0) scale(1, 1) !important;
     margin-left: 0px;
 }
 .key-template-4 .tuc {
-	margin-top: 5px;
-	font-size: 11px;
+	margin-top: 10px;
+	font-size: 10px;
     /* font-weight: bold; */
 }
 /*css cho từng template*/
